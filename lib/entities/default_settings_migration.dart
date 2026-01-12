@@ -572,6 +572,10 @@ CREATE TABLE BalanceCardStyleSettings (
 );
 ''');
           break;
+        case 56:
+          await db.execute('''
+ALTER TABLE WalletInfo ADD COLUMN receiveInfoboxDismissed DEFAULT FALSE;
+          ''');
 
         default:
           break;

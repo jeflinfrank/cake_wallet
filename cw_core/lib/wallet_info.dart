@@ -346,6 +346,7 @@ class WalletInfo {
     this.hashedWalletIdentifier,
     this.isNonSeedWallet,
     this.sortOrder,
+      this.receiveInfoboxDismissed
   ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
@@ -367,6 +368,7 @@ class WalletInfo {
     String? hashedWalletIdentifier,
     bool? isNonSeedWallet,
     int? sortOrder,
+    bool? receiveInfoboxDismissed,
   }) {
     return WalletInfo(
       0,
@@ -388,6 +390,7 @@ class WalletInfo {
       hashedWalletIdentifier,
       isNonSeedWallet ?? false,
       sortOrder ?? 0,
+        receiveInfoboxDismissed ?? false
     );
   }
 
@@ -406,6 +409,7 @@ class WalletInfo {
   String dirPath;
   String path;
   String address;
+  bool receiveInfoboxDismissed;
 
   Future<Map<String, String>> getAddresses() async {
     final list = await WalletInfoAddressMap.selectList(internalId);
@@ -570,6 +574,7 @@ class WalletInfo {
         "hashedWalletIdentifier": hashedWalletIdentifier,
         "isNonSeedWallet": isNonSeedWallet ? 1 : 0,
         "sortOrder": sortOrder,
+        "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -595,6 +600,7 @@ class WalletInfo {
       json['hashedWalletIdentifier'] as String?,
       (json['isNonSeedWallet'] as int) == 1,
       json['sortOrder'] as int? ?? 0,
+      json['receiveInfoboxDismissed'] != 0,
     );
   }
 
