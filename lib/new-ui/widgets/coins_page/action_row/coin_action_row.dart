@@ -8,15 +8,14 @@ import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../../pages/receive_page.dart';
 import '../../../pages/scan_page.dart';
@@ -69,12 +68,13 @@ class CoinActionRow extends StatelessWidget {
             label: S.of(context).receive,
             action: () async {
               if (FeatureFlag.hasNewUiExtraPages) {
-                showModalBottomSheet(
+                final page = getIt.get<NewReceivePage>();
+                CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,
-                  isScrollControlled: true,
+                  barrierColor: Colors.black.withAlpha(80),
                   builder: (context) => FractionallySizedBox(
-                    heightFactor: 0.9,
-                    child: ModalNavigator(rootPage: getIt.get<NewReceivePage>())
+                    heightFactor: 0.97,
+                    child: Material(child: ModalNavigator(rootPage: page))
                   ),
                 );
               } else {

@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import '../view_model/dashboard/dashboard_view_model.dart';
 
 class NewDashboard extends StatefulWidget {
@@ -31,24 +32,26 @@ class _NewDashboardState extends State<NewDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          MultiBlocProvider(providers: [
-            BlocProvider<CardCustomizerBloc>(
-              create: (_) => getIt.get<CardCustomizerBloc>(),
+    return CupertinoScaffold(
+      body: Material(
+        child: Stack(
+          children: [
+            MultiBlocProvider(providers: [
+              BlocProvider<CardCustomizerBloc>(
+                create: (_) => getIt.get<CardCustomizerBloc>(),
+              )
+            ], child: widget.dashboardPageWidgets[_selectedPage]),
+            NewMainNavBar(
+              dashboardViewModel: widget.dashboardViewModel,
+              selectedIndex: _selectedPage,
+              onItemTap: (index) {
+                setState(() {
+                  _selectedPage = index;
+                });
+              },
             )
-          ], child: widget.dashboardPageWidgets[_selectedPage]),
-          NewMainNavBar(
-            dashboardViewModel: widget.dashboardViewModel,
-            selectedIndex: _selectedPage,
-            onItemTap: (index) {
-              setState(() {
-                _selectedPage = index;
-              });
-            },
-          )
-        ],
+          ],
+        ),
       ),
     );
   }
