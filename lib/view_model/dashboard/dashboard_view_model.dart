@@ -12,6 +12,7 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/service_status.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -287,9 +288,11 @@ abstract class DashboardViewModelBase with Store {
     //   subname = nano!.getCurrentAccount(_wallet).label;
     // }
 
-    reaction((_) => appStore.wallet, (wallet) {
+    _walletChangeDisposer?.reaction.dispose();
+    _walletChangeDisposer = reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
       _checkMweb();
+      loadCardDesigns();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
 
@@ -360,7 +363,6 @@ abstract class DashboardViewModelBase with Store {
 
         cardDesigns.add(CardDesign.fromStyleSettings(setting, wallet.currency));
       }
-      printV("loaded card designs.");
   }
 
 
@@ -648,6 +650,17 @@ abstract class DashboardViewModelBase with Store {
     return resp;
   }
 
+  @action
+  void toggleSwitchStatusDisplayMode() {
+    if (status is SyncingSyncStatus && !((status as SyncingSyncStatus).shouldShowBlocksRemaining())) {
+      if (settingsStore.syncStatusDisplayMode == SyncStatusDisplayMode.eta) {
+        settingsStore.syncStatusDisplayMode = SyncStatusDisplayMode.blocksRemaining;
+      } else {
+        settingsStore.syncStatusDisplayMode = SyncStatusDisplayMode.eta;
+      }
+    }
+  }
+
   @observable
   late bool backgroundSyncNotificationsEnabled =
       sharedPreferences.getBool(PreferencesKey.backgroundSyncNotificationsEnabled) ?? false;
@@ -903,6 +916,8 @@ abstract class DashboardViewModelBase with Store {
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
   ReactionDisposer? _transactionDisposer;
+
+  ReactionDisposer? _walletChangeDisposer;
 
   @computed
   bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(wallet.type);
