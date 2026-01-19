@@ -154,6 +154,8 @@ dependencies:
     path: ./scripts/torch_dart
 
 dev_dependencies:
+  ffigen: ^12.0.0
+  flutter_lints: ^3.0.0
   flutter_test:
     sdk: flutter
   integration_test:
