@@ -111,6 +111,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.zano:
+      case WalletType.beldex:
       case WalletType.decred:
         return Uri.parse(
             "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
@@ -181,6 +182,7 @@ class Node extends HiveObject with Keyable {
           return requestZanoNode();
         case WalletType.decred:
           return requestDecredNode();
+        case WalletType.beldex:
         case WalletType.none:
           return false;
       }

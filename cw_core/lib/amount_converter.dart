@@ -10,6 +10,8 @@ class AmountConverter {
   static const _wowneroAmountDivider = 100000000000;
   static const _bitcoinAmountDivider = 100000000;
   static const _bitcoinAmountLength = 8;
+  static const _beldexAmountLength = 9;
+  static const _beldexAmountDivider = 1000000000;
   static final _bitcoinAmountFormat = NumberFormat()
     ..maximumFractionDigits = _bitcoinAmountLength
     ..minimumFractionDigits = 1;
@@ -19,6 +21,9 @@ class AmountConverter {
   static final _wowneroAmountFormat = NumberFormat()
     ..maximumFractionDigits = _wowneroAmountLength
     ..minimumFractionDigits = 1;
+  static final _beldexAmountFormat = NumberFormat()
+    ..maximumFractionDigits = _beldexAmountLength
+    ..minimumFractionDigits = 1;
 
   static String amountIntToString(CryptoCurrency cryptoCurrency, int amount) {
     switch (cryptoCurrency) {
@@ -26,6 +31,8 @@ class AmountConverter {
         return _moneroAmountToString(amount);
       case CryptoCurrency.wow:
         return _wowneroAmountToString(amount);
+      case CryptoCurrency.bdx:
+        return _beldexAmountToString(amount);
       case CryptoCurrency.btc:
       case CryptoCurrency.bch:
       case CryptoCurrency.ltc:
@@ -65,6 +72,9 @@ class AmountConverter {
 
   static String _wowneroAmountToString(int amount) => _wowneroAmountFormat
       .format(cryptoAmountToDouble(amount: amount, divider: _wowneroAmountDivider));
+  
+  static String _beldexAmountToString(int amount) => _beldexAmountFormat
+      .format(cryptoAmountToDouble(amount: amount, divider: _beldexAmountDivider));
 
   static Decimal cryptoAmountToDecimal({required int amount, required int divider}) =>
     (Decimal.fromInt(amount) / Decimal.fromInt(divider)).toDecimal();

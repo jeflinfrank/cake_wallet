@@ -7,21 +7,22 @@ cd "$(dirname "$0")"
 if [[ ! -d "monero_c/.git" ]];
 then
     rm -rf monero_c
-    git clone https://github.com/mrcyjanek/monero_c --branch master monero_c
+    git clone https://github.com/MogamboPuri/monero_c --branch develop monero_c
     cd monero_c
     # NOTE: Make sure to update monero_c prebuilds link in workflow files
     # https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.0-RC9/release-bundle.zip
-    git checkout 411e8a1cdb3f4c2812d83f28c335d2a4eb18bd29
+    git checkout bd069b63211c245f9b8ba4fd7b0d24ac96671661
     git reset --hard
     git submodule update --init --force --recursive
     ./apply_patches.sh monero
     ./apply_patches.sh wownero
     ./apply_patches.sh zano
+    ./apply_patches.sh beldex
 else
     cd monero_c
 fi
 
-for coin in monero wownero zano;
+for coin in monero wownero zano beldex;
 do
     if [[ ! -f "$coin/.patch-applied" ]];
     then
