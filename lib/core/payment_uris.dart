@@ -253,6 +253,20 @@ class DogeURI extends PaymentURI {
   }
 }
 
+class BeldexURI extends PaymentURI {
+  BeldexURI({required super.amount, required super.address});
+
+  @override
+  String toString() {
+    var base = 'beldex:$address';
+    if (amount.isNotEmpty) {
+      base += '?tx_amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 class ERC681URI extends PaymentURI {
   final int chainId;
   final String? contractAddress;

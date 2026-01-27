@@ -20,6 +20,7 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -52,6 +53,7 @@ const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base.nownodes.io';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
+const beldexDefaultNodeUri = 'bdx.cakewallet.com:18081';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -673,6 +675,8 @@ String _getDefaultNodeUri(WalletType type) {
     case WalletType.arbitrum:
       return arbitrumDefaultNodeUri;
     case WalletType.banano:
+    case WalletType.beldex:
+      return beldexDefaultNodeUri;
     case WalletType.none:
       return '';
   }
@@ -1092,6 +1096,7 @@ Future<void> checkCurrentNodes(
   final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
   final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
   final currentZanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
+  final currentBeldexNodeId = sharedPreferences.getInt(PreferencesKey.currentBeldexNodeIdKey);
   final currentMoneroNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
@@ -1126,6 +1131,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentWowneroNodeId);
   final currentZanoNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentZanoNodeId);
+  final currentBeldexNode =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentBeldexNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
@@ -1239,6 +1246,11 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: decredDefaultUri, type: WalletType.decred);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.key as int);
+  }
+  if (currentBeldexNode == null) {
+    final node = Node(uri: beldexDefaultNodeUri, type: WalletType.beldex);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentBeldexNodeIdKey, node.key as int);
   }
 }
 
@@ -1364,6 +1376,7 @@ Future<void> migrateExistingNodesToUseAutoSwitching(
     '37.27.100.59:10500',
     'zano.cakewallet.com:11211',
     'electrum.cakewallet.com:50002',
+    'bdx.cakewallet.com:18081',
   ];
   for (var node in [...nodes.values.toList(), ...powNodes.values.toList()]) {
     if (listOfDefaultNodesWithAutoSwitching.contains(node.uriRaw)) {

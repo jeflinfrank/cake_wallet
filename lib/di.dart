@@ -273,6 +273,7 @@ import 'package:cake_wallet/view_model/wallet_unlock_loadable_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_unlock_verifiable_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -1220,6 +1221,8 @@ Future<void> setup({
         return tron!.createTronWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.wownero:
         return wownero!.createWowneroWalletService(_unspentCoinsInfoSource);
+      case WalletType.beldex:
+        return beldex!.createBeldexWalletService(_unspentCoinsInfoSource);
       case WalletType.zano:
         return zano!.createZanoWalletService();
       case WalletType.decred:

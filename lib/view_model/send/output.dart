@@ -23,6 +23,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -134,6 +135,9 @@ abstract class OutputBase with Store {
           case WalletType.zano:
             _amount = zano!
                 .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
+            break;
+          case WalletType.beldex:
+            _amount = beldex!.formatterBeldexParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.none:
           case WalletType.haven:
@@ -252,6 +256,9 @@ abstract class OutputBase with Store {
         case WalletType.haven:
         case WalletType.nano:
         case WalletType.banano:
+        case WalletType.beldex:
+          estimatedFee = beldex!.formatterBeldexAmountToDouble(amount: fee).toString();
+          break;
         case WalletType.none:
           // will not reach here as it doesn't have priority and this function is triggered only when priority changes
           break;

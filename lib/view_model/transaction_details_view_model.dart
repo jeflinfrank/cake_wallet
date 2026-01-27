@@ -10,6 +10,7 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_list_fee_picker_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
@@ -98,6 +99,9 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.dogecoin:
         _addDogecoinListItems(tx, dateFormat);
+        break;
+      case WalletType.beldex:
+        _addBeldexListItems(tx, dateFormat);
         break;
       case WalletType.none:
       case WalletType.banano:
@@ -210,6 +214,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://basescan.org/tx/${txId}';
       case WalletType.arbitrum:
         return 'https://arbiscan.io/tx/${txId}';
+      case WalletType.beldex:
+        return 'https://beldex.com/tx/${txId}';
       case WalletType.none:
         return '';
     }
@@ -249,6 +255,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'basescan.org';
       case WalletType.arbitrum:
         return S.current.view_transaction_on + 'arbiscan.io';
+      case WalletType.beldex:
+        return S.current.view_transaction_on + 'beldex.io';
       case WalletType.none:
         return '';
     }
@@ -724,6 +732,82 @@ abstract class TransactionDetailsViewModelBase with Store {
           key: ValueKey('standard_list_item_transaction_details_source_address_key'),
         ),
     ];
+
+    items.addAll(_items);
+  }
+
+  void _addBeldexListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
+    final description = transactionDescriptionBox.values.firstWhere(
+        (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+        orElse: () => TransactionDescription(id: descriptionKey));
+
+    final key = tx.additionalInfo['key'] as String? ?? description.transactionKey;
+    final accountIndex = tx.additionalInfo['accountIndex'] as int;
+    final addressIndex = tx.additionalInfo['addressIndex'] as int;
+    final feeFormatted = tx.feeFormatted();
+    final _items = [
+      StandartListItem(
+        title: S.current.transaction_details_transaction_id,
+        value: tx.txHash,
+        key: ValueKey('standard_list_item_transaction_details_id_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_date,
+        value: dateFormat.format(tx.date),
+        key: ValueKey('standard_list_item_transaction_details_date_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_height,
+        value: '${tx.height}',
+        key: ValueKey('standard_list_item_transaction_details_height_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_amount,
+        value: tx.amountFormatted(),
+        key: ValueKey('standard_list_item_transaction_details_amount_key'),
+      ),
+      if (feeFormatted != null)
+        StandartListItem(
+          title: S.current.transaction_details_fee,
+          value: feeFormatted,
+          key: ValueKey('standard_list_item_transaction_details_fee_key'),
+        ),
+      if (key?.isNotEmpty ?? false)
+        StandartListItem(
+          title: S.current.transaction_key,
+          value: key!,
+          key: ValueKey('standard_list_item_transaction_key'),
+        ),
+    ];
+
+    if (tx.direction == TransactionDirection.incoming) {
+      try {
+        final address = beldex!.getTransactionAddress(wallet, accountIndex, addressIndex);
+        final label = beldex!.getSubaddressLabel(wallet, accountIndex, addressIndex);
+
+        if (address.isNotEmpty) {
+          isRecipientAddressShown = true;
+          _items.add(
+            StandartListItem(
+              title: S.current.transaction_details_recipient_address,
+              value: address,
+              key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+            ),
+          );
+        }
+
+        if (label.isNotEmpty) {
+          _items.add(StandartListItem(
+            title: S.current.address_label,
+            value: label,
+            key: ValueKey('standard_list_item_address_label_key'),
+          ));
+        }
+      } catch (e) {
+        printV(e.toString());
+      }
+    }
 
     items.addAll(_items);
   }

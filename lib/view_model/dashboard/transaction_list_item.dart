@@ -18,6 +18,7 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -251,6 +252,11 @@ class TransactionListItem extends ActionListItem with Keyable {
             price: price);
         break;
       case WalletType.none:
+      case WalletType.beldex:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: beldex!.formatterBeldexAmountToDouble(amount: transaction.amount),
+            price: price);
+        break;
       case WalletType.banano:
       case WalletType.haven:
         break;

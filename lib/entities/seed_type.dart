@@ -84,3 +84,34 @@ class NanoSeedType extends EnumerableItem<int> with Serializable<int> {
     }
   }
 }
+
+class BeldexSeedType extends EnumerableItem<int> with Serializable<int> {
+  const BeldexSeedType({required String title, required int raw, this.shortTitle})
+      : super(title: title, raw: raw);
+
+  final String? shortTitle;
+
+  static const all = [legacy, polyseed, bip39];
+
+  static const defaultSeedType = polyseed;
+
+  static const legacy = BeldexSeedType(raw: 0, title: 'Legacy (25 words)', shortTitle: "Legacy");
+  static const polyseed = BeldexSeedType(raw: 1, title: 'Polyseed (16 words)', shortTitle: "Polyseed");
+  static const bip39 = BeldexSeedType(raw: 3, title: 'BIP39 (12 words)', shortTitle: "BIP39");
+
+  static BeldexSeedType deserialize({required int raw}) {
+    switch (raw) {
+      case 0:
+        return legacy;
+      case 1:
+        return polyseed;
+      case 2:
+        return bip39;
+      default:
+        throw Exception('Unexpected token: $raw for SeedType deserialize');
+    }
+  }
+
+  @override
+  String toString() => title;
+}

@@ -49,6 +49,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final decredIcon = Image.asset('assets/images/crypto/decred.webp', height: 24, width: 24);
   final dogeIcon = Image.asset('assets/images/crypto/dogecoin.webp', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
+  final beldexIcon = Image.asset('assets/images/crypto/beldex.webp', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
         'assets/images/new_wallet.png',
@@ -190,6 +191,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return baseIcon;
       case WalletType.arbitrum:
         return arbitrumIcon;
+      case WalletType.beldex:
+        return beldexIcon;
       case WalletType.none:
         return nonWalletTypeIcon;
     }

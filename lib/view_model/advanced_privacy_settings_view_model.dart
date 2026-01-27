@@ -59,6 +59,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.haven:
       case WalletType.zano:
       case WalletType.decred:
+      case WalletType.beldex:
         return false;
     }
   }
@@ -89,6 +90,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.wownero,
         WalletType.zano,
         WalletType.dogecoin,
+        WalletType.beldex,
       ].contains(type);
 
   @computed

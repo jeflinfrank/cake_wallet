@@ -87,6 +87,7 @@ class WalletCreationService {
         return true;
       case WalletType.monero:
       case WalletType.wownero:
+      case WalletType.beldex:
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:

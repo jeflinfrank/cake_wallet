@@ -103,6 +103,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.banano:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.beldex:
       case WalletType.arbitrum:
         return false;
     }
@@ -207,6 +208,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.base:
         _settingsStore.priority[wallet.type] = base!.getDefaultTransactionPriority();
         break;
+      case WalletType.beldex:
       default:
         break;
     }

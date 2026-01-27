@@ -22,6 +22,7 @@ class PreferencesKey {
   static const currentSolanaNodeIdKey = 'current_node_id_sol';
   static const currentTronNodeIdKey = 'current_node_id_trx';
   static const currentWowneroNodeIdKey = 'current_node_id_wow';
+  static const currentBeldexNodeIdKey = 'current_node_id_bdx';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
@@ -59,6 +60,7 @@ class PreferencesKey {
   static const zanoTransactionPriority = 'current_fee_priority_zano';
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
   static const decredTransactionPriority = 'current_fee_priority_decred';
+  static const beldexTransactionPriority = 'current_fee_priority_beldex';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
   static const mwebCardDisplay = 'mwebCardDisplay';
@@ -108,6 +110,7 @@ class PreferencesKey {
   static const moneroSeedType = 'monero_seed_type';
   static const bitcoinSeedType = 'bitcoin_seed_type';
   static const nanoSeedType = 'nano_seed_type';
+  static const beldexSeedType = 'beldex_seed_type';
   static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
   static const donationLinkWalletName = 'donation_link_wallet_name';

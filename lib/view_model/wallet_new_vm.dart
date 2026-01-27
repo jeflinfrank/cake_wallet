@@ -14,6 +14,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -164,6 +165,17 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.decred:
         return decred!.createDecredNewWalletCredentials(name: name);
+      case WalletType.beldex:
+        return beldex!.createBeldexNewWalletCredentials(
+          name: name,
+          language: options!.first as String,
+          password: walletPassword,
+          passphrase: passphrase,
+          seedType: newWalletArguments!.mnemonic != null
+              ? BeldexSeedType.bip39.raw
+              : (options.last as BeldexSeedType).raw,
+          mnemonic: newWalletArguments!.mnemonic,
+        );
       case WalletType.none:
       case WalletType.haven:
         throw Exception('Unexpected type: ${type.toString()}');

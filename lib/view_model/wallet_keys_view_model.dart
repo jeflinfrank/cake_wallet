@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -183,6 +184,9 @@ abstract class WalletKeysViewModelBase with Store {
           if (electrumKeys['xpub'] != null)
             StandartListItem(title: "xPub", value: electrumKeys['xpub']!),
         ]);
+        break;
+      case WalletType.beldex:
+        keys = beldex!.getKeys(_wallet);
         break;
       case WalletType.none:
       case WalletType.haven:

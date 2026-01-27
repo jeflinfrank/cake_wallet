@@ -14,6 +14,7 @@ const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
 const baseOutputPath = 'lib/base/base.dart';
 const arbitrumOutputPath = 'lib/arbitrum/arbitrum.dart';
+const beldexOutputPath = 'lib/beldex/beldex.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -36,6 +37,7 @@ Future<void> main(List<String> args) async {
   final hasDogecoin = args.contains('${prefix}dogecoin');
   final hasBase = args.contains('${prefix}base');
   final hasArbitrum = args.contains('${prefix}arbitrum');
+  final hasBeldex = args.contains('${prefix}beldex');
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -53,6 +55,7 @@ Future<void> main(List<String> args) async {
   await generateDogecoin(hasDogecoin);
   await generateBase(hasBase);
   await generateArbitrum(hasArbitrum);
+  await generateBeldex(hasBeldex);
 
   await generatePubspec(
     hasMonero: hasMonero,
@@ -71,6 +74,7 @@ Future<void> main(List<String> args) async {
     hasDogecoin: hasDogecoin,
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
+    hasBeldex: hasBeldex
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -88,6 +92,7 @@ Future<void> main(List<String> args) async {
     hasDogecoin: hasDogecoin,
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
+    hasBeldex: hasBeldex
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
 }
@@ -1775,6 +1780,212 @@ abstract class Arbitrum {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateBeldex(bool hasImplementation) async {
+  final outputFile = File(beldexOutputPath);
+  const beldexCommonHeaders = """
+import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:mobx/mobx.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
+import 'package:polyseed/polyseed.dart';""";
+  const beldexCWHeaders = """
+import 'package:cw_core/account.dart' as beldex_account;
+import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_core/beldex_amount_format.dart';
+import 'package:cw_core/beldex_transaction_priority.dart';
+import 'package:cw_beldex/api/wallet_manager.dart';
+import 'package:cw_beldex/api/wallet.dart' as beldex_wallet_api;
+import 'package:cw_beldex/ledger.dart';
+import 'package:cw_beldex/beldex_unspent.dart';
+import 'package:cw_beldex/api/account_list.dart';
+import 'package:cw_beldex/beldex_wallet_service.dart';
+import 'package:cw_beldex/beldex_wallet.dart';
+import 'package:cw_beldex/beldex_transaction_info.dart';
+import 'package:cw_beldex/beldex_transaction_creation_credentials.dart';
+import 'package:cw_beldex/mnemonics/english.dart';
+import 'package:cw_beldex/mnemonics/chinese_simplified.dart';
+import 'package:cw_beldex/mnemonics/dutch.dart';
+import 'package:cw_beldex/mnemonics/german.dart';
+import 'package:cw_beldex/mnemonics/japanese.dart';
+import 'package:cw_beldex/mnemonics/russian.dart';
+import 'package:cw_beldex/mnemonics/spanish.dart';
+import 'package:cw_beldex/mnemonics/portuguese.dart';
+import 'package:cw_beldex/mnemonics/french.dart';
+import 'package:cw_beldex/mnemonics/italian.dart';
+import 'package:cw_beldex/pending_beldex_transaction.dart';
+""";
+  const beldexCwPart = "part 'cw_beldex.dart';";
+  const beldexContent = """
+class Account {
+  Account({required this.id, required this.label, this.balance});
+  final int id;
+  final String label;
+  final String? balance;
+}
+
+class Subaddress {
+  Subaddress({
+    required this.id,
+    required this.label,
+    required this.address,
+    required this.received,
+    required this.txCount});
+  final int id;
+  final String label;
+  final String address;
+  final String? received;
+  final int txCount;
+}
+
+class BeldexBalance extends Balance {
+  BeldexBalance({required this.fullBalance, required this.unlockedBalance})
+      : formattedFullBalance = beldex!.formatterBeldexAmountToString(amount: fullBalance),
+        formattedUnlockedBalance =
+            beldex!.formatterBeldexAmountToString(amount: unlockedBalance),
+        super(unlockedBalance, fullBalance);
+
+  BeldexBalance.fromString(
+      {required this.formattedFullBalance,
+      required this.formattedUnlockedBalance})
+      : fullBalance = beldex!.formatterBeldexParseAmount(amount: formattedFullBalance),
+        unlockedBalance = beldex!.formatterBeldexParseAmount(amount: formattedUnlockedBalance),
+        super(beldex!.formatterBeldexParseAmount(amount: formattedUnlockedBalance),
+            beldex!.formatterBeldexParseAmount(amount: formattedFullBalance));
+
+  final int fullBalance;
+  final int unlockedBalance;
+  final String formattedFullBalance;
+  final String formattedUnlockedBalance;
+
+  @override
+  String get formattedAvailableBalance => formattedUnlockedBalance;
+
+  @override
+  String get formattedAdditionalBalance => formattedFullBalance;
+}
+
+abstract class BeldexWalletDetails {
+  @observable
+  late Account account;
+
+  @observable
+  late BeldexBalance balance;
+}
+
+abstract class Beldex {
+  BeldexAccountList getAccountList(Object wallet);
+
+  BeldexSubaddressList getSubaddressList(Object wallet);
+
+  TransactionHistoryBase getTransactionHistory(Object wallet);
+
+  BeldexWalletDetails getBeldexWalletDetails(Object wallet);
+  String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
+
+  String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
+
+  int getHeightByDate({required DateTime date});
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getBeldexTransactionPrioritySlow();
+  TransactionPriority getBeldexTransactionPriorityAutomatic();
+  TransactionPriority deserializeBeldexTransactionPriority({required int raw});
+  List<TransactionPriority> getTransactionPriorities();
+  List<String> getBeldexWordList(String language);
+  
+  List<Unspent> getUnspents(Object wallet);
+  Future<void> updateUnspents(Object wallet);
+
+  Future<int> getCurrentHeight();
+
+  Future<bool> commitTransactionUR(Object wallet, String ur);
+
+  Map<String, String> exportOutputsUR(Object wallet);
+
+  bool needExportOutputs(Object wallet, int amount);
+
+  bool importKeyImagesUR(Object wallet, String ur);
+
+  WalletCredentials createBeldexRestoreWalletFromKeysCredentials({
+    required String name,
+    required String spendKey,
+    required String viewKey,
+    required String address,
+    required String password,
+    required String language,
+    required int height});
+  WalletCredentials createBeldexRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
+  WalletCredentials createBeldexRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required ledger.LedgerConnection ledgerConnection});
+WalletCredentials createBeldexNewWalletCredentials({required String name, required String language, required int seedType, required String? passphrase, String? password, String? mnemonic});
+  Map<String, String> getKeys(Object wallet);
+  int? getRestoreHeight(Object wallet);
+  Object createBeldexTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
+  Object createBeldexTransactionCreationCredentialsRaw({required List<OutputInfo> outputs, required TransactionPriority priority});
+  String formatterBeldexAmountToString({required int amount});
+  double formatterBeldexAmountToDouble({required int amount});
+  int formatterBeldexParseAmount({required String amount});
+  Account getCurrentAccount(Object wallet);
+  void monerocCheck();
+  bool isViewOnly();
+  void setCurrentAccount(Object wallet, int id, String label, String? balance);
+  void onStartup();
+  int getTransactionInfoAccountId(TransactionInfo tx);
+  WalletService createBeldexWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
+  Map<String, String> pendingTransactionInfo(Object transaction);
+  Future<void> setLedgerConnection(Object wallet, ledger.LedgerConnection connection);
+  void resetLedgerConnection();
+  void setGlobalLedgerConnection(ledger.LedgerConnection connection);
+  String? getLastLedgerCommand();
+  Map<String, List<int>> debugCallLength();
+  Map<String, dynamic> getWalletCacheDebug();
+}
+
+abstract class BeldexSubaddressList {
+  ObservableList<Subaddress> get subaddresses;
+  void update(Object wallet, {required int accountIndex});
+  void refresh(Object wallet, {required int accountIndex});
+  List<Subaddress> getAll(Object wallet);
+  Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
+  Future<void> setLabelSubaddress(Object wallet,
+      {required int accountIndex, required int addressIndex, required String label});
+}
+
+abstract class BeldexAccountList {
+  ObservableList<Account> get accounts;
+  void update(Object wallet);
+  void refresh(Object wallet);
+  List<Account> getAll(Object wallet);
+  Future<void> addAccount(Object wallet, {required String label});
+  Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
+}
+  """;
+
+  const beldexEmptyDefinition = 'Beldex? beldex;\n';
+  const beldexCWDefinition = 'Beldex? beldex = CWBeldex();\n';
+
+  final output = '$beldexCommonHeaders\n' +
+      (hasImplementation ? '$beldexCWHeaders\n' : '\n') +
+      (hasImplementation ? '$beldexCwPart\n\n' : '\n') +
+      (hasImplementation ? beldexCWDefinition : beldexEmptyDefinition) +
+      '\n' +
+      beldexContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generatePubspec({
   required bool hasMonero,
   required bool hasBitcoin,
@@ -1792,6 +2003,7 @@ Future<void> generatePubspec({
   required bool hasDogecoin,
   required bool hasBase,
   required bool hasArbitrum,
+  required bool hasBeldex,
 }) async {
   const cwCore = """
   cw_core:
@@ -1867,6 +2079,10 @@ Future<void> generatePubspec({
   const cwArbitrum = """
   cw_arbitrum:
       path: ./cw_arbitrum
+  """;
+  const cwBeldex = """
+  cw_beldex:
+    path: ./cw_beldex
   """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
@@ -1945,6 +2161,10 @@ Future<void> generatePubspec({
     output += '\n$cwArbitrum';
   }
 
+  if (hasBeldex) {
+    output += '\n$cwBeldex';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -1973,6 +2193,7 @@ Future<void> generateWalletTypes({
   required bool hasDogecoin,
   required bool hasBase,
   required bool hasArbitrum,
+  required bool hasBeldex,
 }) async {
   final walletTypesFile = File(walletTypesPath);
 
@@ -2042,6 +2263,10 @@ Future<void> generateWalletTypes({
 
   if (hasDecred) {
     outputContent += '\tWalletType.decred,\n';
+  }
+
+  if (hasBeldex) {
+    outputContent += '\tWalletType.beldex,\n';
   }
 
   // if (hasWownero) {
