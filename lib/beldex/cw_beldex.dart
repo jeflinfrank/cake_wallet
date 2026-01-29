@@ -156,7 +156,7 @@ class CWBeldex extends Beldex {
   BeldexWalletDetails getBeldexWalletDetails(Object wallet) => CWBeldexWalletDetails(wallet);
 
   @override
-  int getHeightByDate({required DateTime date}) => getBeldexHeightByDate(date: date);
+  int getHeightByDate({required DateTime date}) => getBeldexHeigthByDate(date: date);
 
   @override
   TransactionPriority getDefaultTransactionPriority() => BeldexTransactionPriority.automatic;
@@ -167,12 +167,14 @@ class CWBeldex extends Beldex {
   @override
   TransactionPriority getBeldexTransactionPriorityAutomatic() =>
       BeldexTransactionPriority.automatic;
+
   @override
   TransactionPriority deserializeBeldexTransactionPriority({required int raw}) =>
       BeldexTransactionPriority.deserialize(raw: raw);
 
   @override
   List<TransactionPriority> getTransactionPriorities() => BeldexTransactionPriority.all;
+
   @override
   List<String> getBeldexWordList(String language) {
     if (language.startsWith("POLYSEED_")) {
@@ -319,6 +321,7 @@ class CWBeldex extends Beldex {
 
   @override
   int formatterBeldexParseAmount({required String amount}) => beldexParseAmount(amount: amount);
+
   @override
   Account getCurrentAccount(Object wallet) {
     final beldexWallet = wallet as BeldexWallet;
@@ -407,7 +410,7 @@ class CWBeldex extends Beldex {
   }
 
   @override
-  void moneroCheck() {
+  void beldexcCheck() {
     checkIfMoneroCIsFine();
   }
 

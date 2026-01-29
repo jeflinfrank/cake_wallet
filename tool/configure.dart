@@ -1934,7 +1934,7 @@ WalletCredentials createBeldexNewWalletCredentials({required String name, requir
   double formatterBeldexAmountToDouble({required int amount});
   int formatterBeldexParseAmount({required String amount});
   Account getCurrentAccount(Object wallet);
-  void monerocCheck();
+  void beldexcCheck();
   bool isViewOnly();
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();

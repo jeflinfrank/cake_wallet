@@ -130,6 +130,7 @@ cw_haven/android/.cxx/
 cw_zano/ios/External/
 lib/bitcoin/bitcoin.dart
 lib/monero/monero.dart
+lib/beldex/beldex.dart
 lib/haven/haven.dart
 lib/ethereum/ethereum.dart
 lib/bitcoin_cash/bitcoin_cash.dart

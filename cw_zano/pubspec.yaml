@@ -24,8 +24,8 @@ dependencies:
   fluttertoast: ^8.2.12
   monero:
     git:
-      url: https://github.com/mrcyjanek/monero_c
-      ref: 411e8a1cdb3f4c2812d83f28c335d2a4eb18bd29 # monero_c hash
+      url: https://github.com/MogamboPuri/monero_c
+      ref: 42c2a28d4496c7ef27723dcf137f9d75f53ea6de # monero_c hash
       path: impls/monero.dart
 dev_dependencies:
   flutter_test:

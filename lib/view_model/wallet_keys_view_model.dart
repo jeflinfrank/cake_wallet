@@ -274,6 +274,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'decred-wallet';
       case WalletType.dogecoin:
         return 'dogecoin-wallet';
+      case WalletType.beldex:
+        return 'beldex-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()}');
     }
