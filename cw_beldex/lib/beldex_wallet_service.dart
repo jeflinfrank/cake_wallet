@@ -28,14 +28,14 @@ import 'package:polyseed/polyseed.dart';
 enum BeldexSeedType { polyseed, legacy, bip39 }
 
 class BeldexNewWalletCredentials extends WalletCredentials {
-  BeldexNewWalletCredentials({
-    required String name,
-    required this.language,
-    required this.seedType,
-    String? password,
-    this.passphrase,
-    this.mnemonic,
-  }) : super(name: name, password: password);
+  BeldexNewWalletCredentials(
+      {required String name,
+      required this.language,
+      required this.seedType,
+      String? password,
+      this.passphrase,
+      this.mnemonic})
+      : super(name: name, password: password);
 
   final String language;
   final BeldexSeedType seedType;
@@ -44,23 +44,23 @@ class BeldexNewWalletCredentials extends WalletCredentials {
 }
 
 class BeldexRestoreWalletFromHardwareCredentials extends WalletCredentials {
-  BeldexRestoreWalletFromHardwareCredentials({
-    required String name,
-    required this.ledgerConnection,
-    int height = 0,
-    String? password,
-  }) : super(name: name, password: password, height: height);
+  BeldexRestoreWalletFromHardwareCredentials(
+      {required String name,
+      required this.ledgerConnection,
+      int height = 0,
+      String? password})
+      : super(name: name, password: password, height: height);
   LedgerConnection ledgerConnection;
 }
 
 class BeldexRestoreWalletFromSeedCredentials extends WalletCredentials {
-  BeldexRestoreWalletFromSeedCredentials({
-    required String name,
-    required this.mnemonic,
-    required this.passphrase,
-    int height = 0,
-    String? password,
-  }) : super(name: name, password: password, height: height);
+  BeldexRestoreWalletFromSeedCredentials(
+      {required String name,
+      required this.mnemonic,
+      required this.passphrase,
+      int height = 0,
+      String? password})
+      : super(name: name, password: password, height: height);
 
   final String mnemonic;
   final String passphrase;
@@ -72,15 +72,15 @@ class BeldexWalletLoadingException implements Exception {
 }
 
 class BeldexRestoreWalletFromKeysCredentials extends WalletCredentials {
-  BeldexRestoreWalletFromKeysCredentials({
-    required String name,
-    required String password,
-    required this.language,
-    required this.address,
-    required this.viewKey,
-    required this.spendKey,
-    int height = 0,
-  }) : super(name: name, password: password, height: height);
+  BeldexRestoreWalletFromKeysCredentials(
+      {required String name,
+      required String password,
+      required this.language,
+      required this.address,
+      required this.viewKey,
+      required this.spendKey,
+      int height = 0})
+      : super(name: name, password: password, height: height);
 
   final String language;
   final String address;
@@ -88,16 +88,17 @@ class BeldexRestoreWalletFromKeysCredentials extends WalletCredentials {
   final String spendKey;
 }
 
-enum OpenWalletTry { initial, cacheRestored, cacheRemoved }
+enum OpenWalletTry {
+  initial,
+  cacheRestored,
+  cacheRemoved,
+}
 
-class BeldexWalletService
-    extends
-        WalletService<
-          BeldexNewWalletCredentials,
-          BeldexRestoreWalletFromSeedCredentials,
-          BeldexRestoreWalletFromKeysCredentials,
-          BeldexRestoreWalletFromHardwareCredentials
-        > {
+class BeldexWalletService extends WalletService<
+    BeldexNewWalletCredentials,
+    BeldexRestoreWalletFromSeedCredentials,
+    BeldexRestoreWalletFromKeysCredentials,
+    BeldexRestoreWalletFromHardwareCredentials> {
   BeldexWalletService(this.unspentCoinsInfoSource);
 
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
@@ -109,10 +110,8 @@ class BeldexWalletService
   WalletType getType() => WalletType.beldex;
 
   @override
-  Future<BeldexWallet> create(
-    BeldexNewWalletCredentials credentials, {
-    bool? isTestnet,
-  }) async {
+  Future<BeldexWallet> create(BeldexNewWalletCredentials credentials,
+      {bool? isTestnet}) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
 
@@ -134,32 +133,23 @@ class BeldexWalletService
           polyseed.crypt(credentials.passphrase!);
 
         final heightOverride = getBeldexHeigthByDate(
-          date: DateTime.now().subtract(Duration(days: 2)),
-        );
+            date: DateTime.now().subtract(Duration(days: 2)));
 
-        return _restoreFromPolyseed(
-          path,
-          credentials.password!,
-          polyseed,
-          credentials.walletInfo!,
-          lang,
-          overrideHeight: heightOverride,
-          passphrase: credentials.passphrase,
-        );
+        return _restoreFromPolyseed(path, credentials.password!, polyseed,
+            credentials.walletInfo!, lang,
+            overrideHeight: heightOverride, passphrase: credentials.passphrase);
       }
 
       beldex_wallet_manager.createWallet(
-        path: path,
-        password: credentials.password!,
-        language: credentials.language,
-        passphrase: credentials.passphrase ?? "",
-      );
+          path: path,
+          password: credentials.password!,
+          language: credentials.language,
+          passphrase: credentials.passphrase ?? "");
       final wallet = BeldexWallet(
-        walletInfo: credentials.walletInfo!,
-        derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        password: credentials.password!,
-      );
+          walletInfo: credentials.walletInfo!,
+          derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -183,27 +173,24 @@ class BeldexWalletService
   }
 
   @override
-  Future<BeldexWallet> openWallet(
-    String name,
-    String password, {
-    OpenWalletTry openWalletTry = OpenWalletTry.initial,
-  }) async {
+  Future<BeldexWallet> openWallet(String name, String password,
+      {OpenWalletTry openWalletTry = OpenWalletTry.initial}) async {
     try {
       final path = await pathForWallet(name: name, type: getType());
 
       if (walletFilesExist(path)) await repairOldAndroidWallet(name);
 
-      await beldex_wallet_manager.openWallet(path: path, password: password);
+      await beldex_wallet_manager
+          .openWallet(path: path, password: password);
       final walletInfo = await WalletInfo.get(name, getType());
       if (walletInfo == null) {
         throw Exception('Wallet not found');
       }
       final wallet = BeldexWallet(
-        walletInfo: walletInfo,
-        derivationInfo: await walletInfo.getDerivationInfo(),
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        password: password,
-      );
+          walletInfo: walletInfo,
+          derivationInfo: await walletInfo.getDerivationInfo(),
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: password);
 
       if (wallet.isHardwareWallet) {
         wallet.setLedgerConnection(gLedger!);
@@ -219,18 +206,10 @@ class BeldexWalletService
       switch (openWalletTry) {
         case OpenWalletTry.initial:
           await restoreOrResetWalletFiles(name);
-          return await openWallet(
-            name,
-            password,
-            openWalletTry: OpenWalletTry.cacheRestored,
-          );
+          return await openWallet(name, password, openWalletTry: OpenWalletTry.cacheRestored);
         case OpenWalletTry.cacheRestored:
           await removeCache(name);
-          return await openWallet(
-            name,
-            password,
-            openWalletTry: OpenWalletTry.cacheRemoved,
-          );
+          return await openWallet(name, password, openWalletTry: OpenWalletTry.cacheRemoved);
         case OpenWalletTry.cacheRemoved:
           rethrow;
       }
@@ -266,11 +245,7 @@ class BeldexWalletService
   }
 
   @override
-  Future<void> rename(
-    String currentName,
-    String password,
-    String newName,
-  ) async {
+  Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
       throw Exception('Wallet not found');
@@ -292,27 +267,23 @@ class BeldexWalletService
   }
 
   @override
-  Future<BeldexWallet> restoreFromKeys(
-    BeldexRestoreWalletFromKeysCredentials credentials, {
-    bool? isTestnet,
-  }) async {
+  Future<BeldexWallet> restoreFromKeys(BeldexRestoreWalletFromKeysCredentials credentials,
+      {bool? isTestnet}) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       beldex_wallet_manager.restoreWalletFromKeys(
-        path: path,
-        password: credentials.password!,
-        language: credentials.language,
-        restoreHeight: credentials.height!,
-        address: credentials.address,
-        viewKey: credentials.viewKey,
-        spendKey: credentials.spendKey,
-      );
+          path: path,
+          password: credentials.password!,
+          language: credentials.language,
+          restoreHeight: credentials.height!,
+          address: credentials.address,
+          viewKey: credentials.viewKey,
+          spendKey: credentials.spendKey);
       final wallet = BeldexWallet(
-        walletInfo: credentials.walletInfo!,
-        derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        password: credentials.password!,
-      );
+          walletInfo: credentials.walletInfo!,
+          derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -325,8 +296,7 @@ class BeldexWalletService
 
   @override
   Future<BeldexWallet> restoreFromHardwareWallet(
-    BeldexRestoreWalletFromHardwareCredentials credentials,
-  ) async {
+      BeldexRestoreWalletFromHardwareCredentials credentials) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       final password = credentials.password;
@@ -335,18 +305,16 @@ class BeldexWalletService
       enableLedgerExchange(credentials.ledgerConnection);
 
       await beldex_wallet_manager.restoreWalletFromHardwareWallet(
-        path: path,
-        password: password!,
-        restoreHeight: height!,
-        deviceName: 'Ledger',
-      );
+          path: path,
+          password: password!,
+          restoreHeight: height!,
+          deviceName: 'Ledger');
 
       final wallet = BeldexWallet(
-        walletInfo: credentials.walletInfo!,
-        derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        password: credentials.password!,
-      );
+          walletInfo: credentials.walletInfo!,
+          derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -359,9 +327,8 @@ class BeldexWalletService
 
   @override
   Future<BeldexWallet> restoreFromSeed(
-    BeldexRestoreWalletFromSeedCredentials credentials, {
-    bool? isTestnet,
-  }) async {
+      BeldexRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     // Restore from Polyseed
     try {
       if (Polyseed.isValidSeed(credentials.mnemonic)) {
@@ -374,10 +341,8 @@ class BeldexWalletService
 
     try {
       if (isBip39Seed(credentials.mnemonic)) {
-        final path = await pathForWallet(
-          name: credentials.name,
-          type: getType(),
-        );
+        final path =
+            await pathForWallet(name: credentials.name, type: getType());
 
         return _restoreFromBip39(
           path: path,
@@ -397,18 +362,16 @@ class BeldexWalletService
       final path = await pathForWallet(name: credentials.name, type: getType());
 
       beldex_wallet_manager.restoreWalletFromSeedSync(
-        path: path,
-        password: credentials.password!,
-        passphrase: credentials.passphrase,
-        seed: credentials.mnemonic,
-        restoreHeight: credentials.height!,
-      );
+          path: path,
+          password: credentials.password!,
+          passphrase: credentials.passphrase,
+          seed: credentials.mnemonic,
+          restoreHeight: credentials.height!);
       final wallet = BeldexWallet(
-        walletInfo: credentials.walletInfo!,
-        derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        password: credentials.password!,
-      );
+          walletInfo: credentials.walletInfo!,
+          derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -432,12 +395,10 @@ class BeldexWalletService
     derivationInfo.derivationPath = "m/44'/128'/0'/0/0";
     await derivationInfo.save();
 
-    final legacyMnemonic = getLegacySeedFromBip39(
-      mnemonic,
-      passphrase: passphrase ?? "",
-    );
+    final legacyMnemonic =
+        getLegacySeedFromBip39(mnemonic, passphrase: passphrase ?? "");
     final height =
-        overrideHeight ?? getBeldexHeightByDate(date: DateTime.now());
+        overrideHeight ?? getBeldexHeigthByDate(date: DateTime.now());
 
     walletInfo.isRecovery = true;
     walletInfo.restoreHeight = height;
@@ -451,13 +412,9 @@ class BeldexWalletService
     );
 
     currentWallet!.setCacheAttribute(
-      key: "cakewallet.seed.bip39",
-      value: mnemonic,
-    );
+        key: "cakewallet.seed.bip39", value: mnemonic);
     currentWallet!.setCacheAttribute(
-      key: "cakewallet.passphrase",
-      value: passphrase ?? '',
-    );
+        key: "cakewallet.passphrase", value: passphrase ?? '');
 
     currentWallet!.store();
 
@@ -473,26 +430,17 @@ class BeldexWalletService
   }
 
   Future<BeldexWallet> restoreFromPolyseed(
-    BeldexRestoreWalletFromSeedCredentials credentials,
-  ) async {
+      BeldexRestoreWalletFromSeedCredentials credentials) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       final polyseedCoin = PolyseedCoin.POLYSEED_MONERO;
       final lang = PolyseedLang.getByPhrase(credentials.mnemonic);
-      final polyseed = Polyseed.decode(
-        credentials.mnemonic,
-        lang,
-        polyseedCoin,
-      );
+      final polyseed =
+          Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
 
       return _restoreFromPolyseed(
-        path,
-        credentials.password!,
-        polyseed,
-        credentials.walletInfo!,
-        lang,
-        passphrase: credentials.passphrase,
-      );
+          path, credentials.password!, polyseed, credentials.walletInfo!, lang,
+          passphrase: credentials.passphrase);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
       printV('BeldexWalletsManager Error: $e');
@@ -500,26 +448,20 @@ class BeldexWalletService
     }
   }
 
-  Future<BeldexWallet> _restoreFromPolyseed(
-    String path,
-    String password,
-    Polyseed polyseed,
-    WalletInfo walletInfo,
-    PolyseedLang lang, {
-    PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO,
-    int? overrideHeight,
-    String? passphrase,
-  }) async {
+  Future<BeldexWallet> _restoreFromPolyseed(String path, String password,
+      Polyseed polyseed, WalletInfo walletInfo, PolyseedLang lang,
+      {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO,
+      int? overrideHeight,
+      String? passphrase}) async {
     if (polyseed.isEncrypted == false && (passphrase ?? '') != "") {
       // Fallback to the different passphrase offset method, when a passphrase
       // was provided but the polyseed is not encrypted.
       beldex_wallet_manager.restoreWalletFromPolyseedWithOffset(
-        path: path,
-        password: password,
-        seed: polyseed.encode(lang, coin),
-        seedOffset: passphrase ?? '',
-        language: "English",
-      );
+          path: path,
+          password: password,
+          seed: polyseed.encode(lang, coin),
+          seedOffset: passphrase ?? '',
+          language: "English");
 
       final wallet = BeldexWallet(
         walletInfo: walletInfo,
@@ -534,11 +476,8 @@ class BeldexWalletService
 
     if (polyseed.isEncrypted) polyseed.crypt(passphrase ?? '');
 
-    final height =
-        overrideHeight ??
-        getBeldexHeightByDate(
-          date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000),
-        );
+    final height = overrideHeight ??
+        getBeldexHeigthByDate(date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
     final spendKey = polyseed.generateKey(coin, 32).toHexString();
     final seed = polyseed.encode(lang, coin);
 
@@ -546,19 +485,16 @@ class BeldexWalletService
     walletInfo.restoreHeight = height;
 
     beldex_wallet_manager.restoreWalletFromSpendKeySync(
-      path: path,
-      password: password,
-      seed: seed,
-      language: lang.nameEnglish,
-      restoreHeight: height,
-      spendKey: spendKey,
-    );
+        path: path,
+        password: password,
+        seed: seed,
+        language: lang.nameEnglish,
+        restoreHeight: height,
+        spendKey: spendKey);
+
 
     currentWallet!.setCacheAttribute(key: "cakewallet.seed", value: seed);
-    currentWallet!.setCacheAttribute(
-      key: "cakewallet.passphrase",
-      value: passphrase ?? '',
-    );
+    currentWallet!.setCacheAttribute(key: "cakewallet.passphrase", value: passphrase??'');
 
     final wallet = BeldexWallet(
       walletInfo: walletInfo,
@@ -575,17 +511,12 @@ class BeldexWalletService
     try {
       if (!Platform.isAndroid) return;
 
-      final oldAndroidWalletDirPath = await outdatedAndroidPathForWalletDir(
-        name: name,
-      );
+      final oldAndroidWalletDirPath = await outdatedAndroidPathForWalletDir(name: name);
       final dir = Directory(oldAndroidWalletDirPath);
 
       if (!dir.existsSync()) return;
 
-      final newWalletDirPath = await pathForWalletDir(
-        name: name,
-        type: getType(),
-      );
+      final newWalletDirPath = await pathForWalletDir(name: name, type: getType());
 
       dir.listSync().forEach((f) {
         final file = File(f.path);
@@ -610,7 +541,8 @@ class BeldexWalletService
 
       if (walletFilesExist(path)) await repairOldAndroidWallet(name);
 
-      await beldex_wallet_manager.openWallet(path: path, password: password);
+      await beldex_wallet_manager
+          .openWallet(path: path, password: password);
       final walletInfo = await WalletInfo.get(name, getType());
       if (walletInfo == null) {
         throw Exception('Wallet not found');
@@ -642,22 +574,14 @@ Future<void> closeWalletAwaitIfShould(int wmaddr, int waddr) async {
   if (Platform.isWindows) {
     await Isolate.run(() {
       beldex.WalletManager_closeWallet(
-        Pointer.fromAddress(wmaddr),
-        Pointer.fromAddress(waddr),
-        true,
-      );
+          Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
       beldex.WalletManager_errorString(Pointer.fromAddress(wmaddr));
     });
   } else {
-    unawaited(
-      Isolate.run(() {
-        beldex.WalletManager_closeWallet(
-          Pointer.fromAddress(wmaddr),
-          Pointer.fromAddress(waddr),
-          true,
-        );
-        beldex.WalletManager_errorString(Pointer.fromAddress(wmaddr));
-      }),
-    );
+    unawaited(Isolate.run(() {
+      beldex.WalletManager_closeWallet(
+          Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+      beldex.WalletManager_errorString(Pointer.fromAddress(wmaddr));
+    }));
   }
 }

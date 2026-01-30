@@ -169,7 +169,7 @@ Future<PendingTransactionDescription> createTransactionSync({
   final spaddr = beldex.defaultSeparator.address;
   final pendingTxPtr = Pointer<Void>.fromAddress(
     await Isolate.run(() {
-      final tx = beldex_gen.MoneroC(
+      final tx = beldex_gen.BeldexC(
         DynamicLibrary.open(beldex.libPath),
       ).BELDEX_Wallet_createTransaction(
         Pointer.fromAddress(waddr),
