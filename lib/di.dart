@@ -36,6 +36,7 @@ import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
+import 'package:cake_wallet/src/screens/dev/beldex_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
 import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
 import 'package:cake_wallet/src/screens/dev/exchange_provider_logs_page.dart';
@@ -53,6 +54,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.d
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
+import 'package:cake_wallet/view_model/dev/beldex_background_sync.dart';
 import 'package:cake_wallet/view_model/dev/secure_preferences.dart';
 import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/bitbox_view_model.dart';
@@ -121,6 +123,8 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart'
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
+import 'package:cake_wallet/src/screens/beldex_accounts/beldex_account_edit_or_create_page.dart';
+import 'package:cake_wallet/src/screens/beldex_accounts/beldex_account_list_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
@@ -246,6 +250,8 @@ import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/beldex_account_list/beldex_account_edit_or_create_view_model.dart';
+import 'package:cake_wallet/view_model/beldex_account_list/beldex_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/order_details_view_model.dart';
@@ -930,8 +936,20 @@ Future<void> setup({
         'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel');
   });
 
+  getIt.registerFactory<BeldexAccountListViewModel>(() {
+    final wallet = getIt.get<AppStore>().wallet!;
+    if (wallet.type == WalletType.beldex) {
+      return BeldexAccountListViewModel(wallet,getIt.get<SettingsStore>());
+    }
+    throw Exception(
+        'Unexpected wallet type: ${wallet.type} for generate Beldex AccountListViewModel');
+  });
+
   getIt.registerFactory(
       () => MoneroAccountListPage(accountListViewModel: getIt.get<MoneroAccountListViewModel>()));
+
+  getIt.registerFactory(
+      () => BeldexAccountListPage(accountListViewModel: getIt.get<BeldexAccountListViewModel>()));
 
   getIt.registerFactory(
       () => NanoAccountListPage(accountListViewModel: getIt.get<NanoAccountListViewModel>()));
@@ -962,6 +980,17 @@ Future<void> setup({
       (AccountListItem? account, _) => MoneroAccountEditOrCreatePage(
           moneroAccountCreationViewModel:
               getIt.get<MoneroAccountEditOrCreateViewModel>(param1: account)));
+
+  getIt.registerFactoryParam<BeldexAccountEditOrCreateViewModel, AccountListItem?, void>(
+      (AccountListItem? account, _) => BeldexAccountEditOrCreateViewModel(
+          beldex!.getAccountList(getIt.get<AppStore>().wallet!),
+          wallet: getIt.get<AppStore>().wallet!,
+          accountListItem: account));
+
+  getIt.registerFactoryParam<BeldexAccountEditOrCreatePage, AccountListItem?, void>(
+      (AccountListItem? account, _) => BeldexAccountEditOrCreatePage(
+          beldexAccountCreationViewModel:
+              getIt.get<BeldexAccountEditOrCreateViewModel>(param1: account)));
 
   getIt.registerFactoryParam<NanoAccountEditOrCreateViewModel, NanoAccount?, void>(
       (NanoAccount? account, _) =>
@@ -1004,6 +1033,8 @@ Future<void> setup({
   getIt.registerFactory<SeedSettingsViewModel>(() => SeedSettingsViewModel(getIt.get<AppStore>(), getIt.get<SeedSettingsStore>()));
 
   getIt.registerFactory(() => DevMoneroBackgroundSync(getIt.get<AppStore>().wallet!));
+
+  getIt.registerFactory(() => DevBeldexBackgroundSync(getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() => DevSharedPreferences());
 
@@ -1594,6 +1625,8 @@ Future<void> setup({
   getIt.registerFactory(() => DevMoneroCallProfilerPage());
 
   getIt.registerFactory(() => DevMoneroWalletCacheDebugPage());
+
+  getIt.registerFactory(() => DevBeldexBackgroundSyncPage(getIt.get<DevBeldexBackgroundSync>()));
 
   getIt.registerFactory(() => DevSharedPreferencesPage(getIt.get<DevSharedPreferences>()));
 

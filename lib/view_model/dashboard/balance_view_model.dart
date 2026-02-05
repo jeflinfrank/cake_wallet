@@ -115,7 +115,7 @@ abstract class BalanceViewModelBase with Store {
       wallet.type == WalletType.zano;
 
   @computed
-  bool get hasAccounts => wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
+  bool get hasAccounts => wallet.type == WalletType.monero || wallet.type == WalletType.wownero || wallet.type == WalletType.beldex;
 
   @computed
   SortBalanceBy get sortBalanceBy => settingsStore.sortBalanceBy;
@@ -308,6 +308,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.zano:
+      case WalletType.beldex:
       case WalletType.decred:
         return true;
       default:

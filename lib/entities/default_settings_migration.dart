@@ -562,6 +562,16 @@ Future<void> defaultSettingsMigration(
           await _backupWowneroSeeds(havenSeedStore);
           break;
 
+         case 55:
+          await addWalletNodeList(nodes: nodes, type: WalletType.beldex);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.beldex,
+            currentNodePreferenceKey: PreferencesKey.currentBeldexNodeIdKey,
+          );
+          break;
+
         default:
           break;
       }
@@ -674,9 +684,9 @@ String _getDefaultNodeUri(WalletType type) {
       return baseDefaultNodeUri;
     case WalletType.arbitrum:
       return arbitrumDefaultNodeUri;
-    case WalletType.banano:
     case WalletType.beldex:
       return beldexDefaultNodeUri;
+    case WalletType.banano:
     case WalletType.none:
       return '';
   }
@@ -799,7 +809,7 @@ Future<void> _validateWalletInfoBoxData() async {
           continue;
         }
 
-        if (type == WalletType.monero || type == WalletType.haven) {
+        if (type == WalletType.monero || type == WalletType.haven || type == WalletType.beldex) {
           final hasKeysFile = walletFiles.any((element) => element.path.contains(".keys"));
 
           if (!hasKeysFile) {
@@ -1129,6 +1139,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentTronNodeId);
   final currentWowneroNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentWowneroNodeId);
+  final currentBeldexNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentBeldexNodeId);
   final currentZanoNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentZanoNodeId);
   final currentBeldexNode =
@@ -1175,6 +1187,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: nanoDefaultNodeUri, useSSL: true, type: WalletType.nano);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.key as int);
+  }
+
+  if (currentBeldexNodeServer == null) {
+    final node = Node(uri: beldexDefaultNodeUri, type: WalletType.beldex);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentBeldexNodeIdKey, node.key as int);
   }
 
   if (currentNanoPowNodeServer == null) {
@@ -1247,6 +1265,7 @@ Future<void> checkCurrentNodes(
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.key as int);
   }
+
   if (currentBeldexNode == null) {
     final node = Node(uri: beldexDefaultNodeUri, type: WalletType.beldex);
     await nodeSource.add(node);

@@ -33,6 +33,7 @@ import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
@@ -65,6 +66,7 @@ abstract class SettingsStoreBase with Store {
       required MoneroSeedType initialMoneroSeedType,
       required BitcoinSeedType initialBitcoinSeedType,
       required NanoSeedType initialNanoSeedType,
+      required BeldexSeedType initialBeldexSeedType,
       required bool initialAppSecure,
       required bool initialDisableTrade,
       required bool initialDisableAutomaticExchangeStatusUpdates,
@@ -146,6 +148,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialBaseTransactionPriority,
       TransactionPriority? initialBitcoinCashTransactionPriority,
       TransactionPriority? initialZanoTransactionPriority,
+      TransactionPriority? initialBeldexTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
       Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
@@ -159,6 +162,7 @@ abstract class SettingsStoreBase with Store {
         moneroSeedType = initialMoneroSeedType,
         bitcoinSeedType = initialBitcoinSeedType,
         nanoSeedType = initialNanoSeedType,
+        beldexSeedType = initialBeldexSeedType,
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         enableDuressPin = initialEnableDuressPin,
@@ -245,6 +249,10 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.decred] = initialDecredTransactionPriority;
     }
 
+    if (initialBeldexTransactionPriority != null) {
+      priority[WalletType.beldex] = initialBeldexTransactionPriority;
+    }
+
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
     }
@@ -309,6 +317,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.decred:
           key = PreferencesKey.decredTransactionPriority;
+          break;
+        case WalletType.beldex:
+          key = PreferencesKey.beldexTransactionPriority;
           break;
         default:
           key = null;
@@ -388,6 +399,11 @@ abstract class SettingsStoreBase with Store {
         (_) => fiatApiMode,
         (FiatApiMode mode) =>
             sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, mode.serialize()));
+
+    reaction(
+        (_) => beldexSeedType,
+        (BeldexSeedType beldexSeedType) =>
+            sharedPreferences.setInt(PreferencesKey.beldexSeedType, beldexSeedType.raw));
 
     reaction(
         (_) => numberOfFailedTokenTrials,
@@ -689,6 +705,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultMoneroSeedType = MoneroSeedType.defaultSeedType;
   static const defaultBitcoinSeedType = BitcoinSeedType.defaultDerivationType;
   static const defaultNanoSeedType = NanoSeedType.defaultDerivationType;
+  static const defaultBeldexSeedType = BeldexSeedType.defaultSeedType;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -737,6 +754,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   NanoSeedType nanoSeedType;
+
+  @observable
+  BeldexSeedType beldexSeedType;
 
   @observable
   bool isAppSecure;
@@ -992,6 +1012,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? wowneroTransactionPriority;
     TransactionPriority? zanoTransactionPriority;
     TransactionPriority? decredTransactionPriority;
+    TransactionPriority? beldexTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -1029,6 +1050,10 @@ abstract class SettingsStoreBase with Store {
       decredTransactionPriority = decred?.deserializeDecredTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.decredTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.beldexTransactionPriority) != null) {
+      beldexTransactionPriority = beldex?.deserializeBeldexTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.beldexTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -1041,6 +1066,7 @@ abstract class SettingsStoreBase with Store {
     polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
     baseTransactionPriority ??= base?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
+    beldexTransactionPriority ??= beldex?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -1143,6 +1169,7 @@ abstract class SettingsStoreBase with Store {
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
+    final beldexNodeId = sharedPreferences.getInt(PreferencesKey.currentBeldexNodeIdKey);
 
     /// get the selected node, if null, then use the default
     final moneroNode = nodeSource.get(nodeId) ??
@@ -1177,6 +1204,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
     final dogecoinNode = nodeSource.get(dogecoinNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
+    final beldexNode = nodeSource.get(beldexNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == beldexDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
@@ -1208,6 +1237,12 @@ abstract class SettingsStoreBase with Store {
 
     final nanoSeedType =
         _nanoSeedType != null ? NanoSeedType.deserialize(raw: _nanoSeedType) : defaultNanoSeedType;
+    
+    final _beldexSeedType = sharedPreferences.getInt(PreferencesKey.beldexSeedType);
+
+    final beldexSeedType = _beldexSeedType != null
+        ? BeldexSeedType.deserialize(raw: _beldexSeedType)
+        : defaultBeldexSeedType;
 
     final nodes = <WalletType, Node>{};
     final powNodes = <WalletType, Node>{};
@@ -1274,6 +1309,10 @@ abstract class SettingsStoreBase with Store {
 
     if (dogecoinNode != null) {
       nodes[WalletType.dogecoin] = dogecoinNode;
+    }
+
+    if (beldexNode != null) {
+      nodes[WalletType.beldex] = beldexNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1401,6 +1440,7 @@ abstract class SettingsStoreBase with Store {
       initialMoneroSeedType: moneroSeedType,
       initialBitcoinSeedType: bitcoinSeedType,
       initialNanoSeedType: nanoSeedType,
+      initialBeldexSeedType: beldexSeedType,
       initialAppSecure: isAppSecure,
       initialDisableTrade: disableTradeOption,
       initialDisableAutomaticExchangeStatusUpdates: disableAutomaticExchangeStatusUpdates,
@@ -1459,6 +1499,7 @@ abstract class SettingsStoreBase with Store {
       initialLitecoinTransactionPriority: litecoinTransactionPriority,
       initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
       initialDecredTransactionPriority: decredTransactionPriority,
+      initialBeldexTransactionPriority: beldexTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
       initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -1504,6 +1545,12 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority) != null) {
       priority[WalletType.bitcoin] = bitcoin!.deserializeBitcoinTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority)!);
+    }
+
+    if (beldex != null &&
+        sharedPreferences.getInt(PreferencesKey.beldexTransactionPriority) != null) {
+      priority[WalletType.beldex] = beldex!.deserializeBeldexTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.beldexTransactionPriority)!);
     }
 
     if (monero != null &&
@@ -1569,6 +1616,12 @@ abstract class SettingsStoreBase with Store {
 
     nanoSeedType =
         _nanoSeedType != null ? NanoSeedType.deserialize(raw: _nanoSeedType) : defaultNanoSeedType;
+
+    final _beldexSeedType = sharedPreferences.getInt(PreferencesKey.beldexSeedType);
+
+    beldexSeedType = _beldexSeedType != null
+        ? BeldexSeedType.deserialize(raw: _beldexSeedType)
+        : defaultBeldexSeedType;
 
     balanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -1665,6 +1718,7 @@ abstract class SettingsStoreBase with Store {
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
+    final beldexNodeId = sharedPreferences.getInt(PreferencesKey.currentBeldexNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1681,6 +1735,7 @@ abstract class SettingsStoreBase with Store {
     final zanoNode = nodeSource.get(zanoNodeId);
     final decredNode = nodeSource.get(decredNodeId);
     final dogecoinNode = nodeSource.get(dogecoinNodeId);
+    final beldexNode = nodeSource.get(beldexNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -1745,6 +1800,10 @@ abstract class SettingsStoreBase with Store {
 
     if (dogecoinNode != null) {
       nodes[WalletType.dogecoin] = dogecoinNode;
+    }
+
+    if (beldexNode != null) {
+      nodes[WalletType.beldex] = beldexNode;
     }
 
     // MIGRATED:
@@ -1897,6 +1956,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.dogecoin:
         await _sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.key as int);
+        break;
+      case WalletType.beldex:
+        await _sharedPreferences.setInt(PreferencesKey.currentBeldexNodeIdKey, node.key as int);
         break;
       default:
         break;

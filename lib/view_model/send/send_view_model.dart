@@ -33,6 +33,7 @@ import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -298,6 +299,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.dogecoin:
       case WalletType.monero:
       case WalletType.wownero:
+      case WalletType.beldex:
       case WalletType.decred:
         return wallet.formatCryptoAmount(
             (await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom)).toString());
@@ -343,6 +345,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         WalletType.litecoin,
         WalletType.monero,
         WalletType.wownero,
+        WalletType.beldex,
         WalletType.decred,
         WalletType.bitcoinCash,
         WalletType.dogecoin
@@ -855,6 +858,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       final txhistory = monero!.getTransactionHistory(wallet);
       tx = txhistory.transactions.values.last;
     }
+    if (walletType == WalletType.beldex) {
+      await Future.delayed(Duration(milliseconds: 450));
+      await wallet.fetchTransactions();
+      final txhistory = beldex!.getTransactionHistory(wallet);
+      tx = txhistory.transactions.values.last;
+    }
     final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
     _settingsStore.shouldSaveRecipientAddress
         ? await transactionDescriptionBox.add(TransactionDescription(
@@ -909,6 +918,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.wownero:
         return wownero!
             .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+
+      case WalletType.beldex:
+        return beldex!
+            .createBeldexTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
       case WalletType.ethereum:
         return ethereum!.createEthereumTransactionCredentials(outputs,

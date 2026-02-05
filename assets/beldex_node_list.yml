@@ -1,18 +1,14 @@
 -
-  uri: bdx.cakewallet.com:18081
+  uri: publicnode1.rpcnode.stream:29095
   is_default: true
-  trusted: true
-  useSSL: true
+  useSSL: false
   isEnabledForAutoSwitching: true
 -
-  uri: cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081
+  uri: publicnode2.rpcnode.stream:29095
   is_default: false
--
-  uri: node.sethforprivacy.com:443
-  useSSL: true
-  is_default: false
+  useSSL: false
   isEnabledForAutoSwitching: true
 -
-  uri: nodes.hashvault.pro:18081
+  uri: publicnode3.rpcnode.stream:29095
   is_default: false
-  isEnabledForAutoSwitching: true
+  useSSL: false

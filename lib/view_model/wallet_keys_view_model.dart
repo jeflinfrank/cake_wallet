@@ -11,6 +11,7 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
+import 'package:cw_beldex/beldex_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -36,7 +37,8 @@ abstract class WalletKeysViewModelBase with Store {
 
     if (_wallet.type == WalletType.monero ||
         _wallet.type == WalletType.haven ||
-        _wallet.type == WalletType.wownero) {
+        _wallet.type == WalletType.wownero ||
+        _wallet.type == WalletType.beldex) {
       final accountTransactions = _getWalletTransactions(_wallet);
       if (accountTransactions.isNotEmpty) {
         final incomingAccountTransactions =
@@ -67,12 +69,12 @@ abstract class WalletKeysViewModelBase with Store {
   String get seed => _wallet.seed != null ? _wallet.seed! : '';
 
   bool get isLegacySeedOnly =>
-      [WalletType.monero, WalletType.wownero].contains(_wallet.type) &&
+      [WalletType.monero, WalletType.wownero, WalletType.beldex].contains(_wallet.type) &&
       _wallet.seed != null &&
       !(Polyseed.isValidSeed(_wallet.seed!) || _wallet.seed!.split(' ').length == 12);
 
   String get legacySeed {
-    if ((_wallet.type == WalletType.monero || _wallet.type == WalletType.wownero) &&
+    if ((_wallet.type == WalletType.monero || _wallet.type == WalletType.wownero || _wallet.type == WalletType.beldex) &&
         _wallet.seed != null &&
         (Polyseed.isValidSeed(_wallet.seed!) || _wallet.seed!.split(' ').length == 12)) {
       final langName = PolyseedLang.getByPhrase(_wallet.seed!).nameEnglish;
@@ -81,6 +83,8 @@ abstract class WalletKeysViewModelBase with Store {
         return (_wallet as MoneroWalletBase).seedLegacy(langName);
       } else if (_wallet.type == WalletType.wownero) {
         return wownero!.getLegacySeed(_wallet, langName);
+      } else if (_wallet.type == WalletType.beldex) {
+        return (_wallet as BeldexWalletBase).seedLegacy(langName);
       }
     }
     return '';
@@ -92,6 +96,9 @@ abstract class WalletKeysViewModelBase with Store {
     }
     if (_wallet.type == WalletType.wownero) {
       return wownero!.getRestoreHeight(_wallet)?.toString() ?? '';
+    }
+    if (_wallet.type == WalletType.beldex) {
+      return beldex!.getRestoreHeight(_wallet)?.toString() ?? '';
     }
     return '';
   }
@@ -235,6 +242,9 @@ abstract class WalletKeysViewModelBase with Store {
     if (_wallet.type == WalletType.wownero) {
       return await wownero!.getCurrentHeight();
     }
+    if (_wallet.type == WalletType.beldex) {
+      return await beldex!.getCurrentHeight();
+    }
     return null;
   }
 
@@ -288,6 +298,9 @@ abstract class WalletKeysViewModelBase with Store {
     if (_wallet.type == WalletType.wownero) {
       return wownero!.getRestoreHeight(_wallet)?.toString();
     }
+    if (_wallet.type == WalletType.beldex) {
+      return beldex!.getRestoreHeight(_wallet)?.toString();
+    }
     if (_restoreHeightByTransactions != 0)
       return getRoundedRestoreHeight(_restoreHeightByTransactions);
     if (_restoreHeight != 0) return _restoreHeight.toString();
@@ -328,6 +341,8 @@ abstract class WalletKeysViewModelBase with Store {
       return monero!.getTransactionHistory(wallet).transactions.values.toList();
     } else if (wallet.type == WalletType.wownero) {
       return wownero!.getTransactionHistory(wallet).transactions.values.toList();
+    } else if (wallet.type == WalletType.beldex) {
+      return beldex!.getTransactionHistory(wallet).transactions.values.toList();
     }
     return [];
   }
@@ -337,6 +352,8 @@ abstract class WalletKeysViewModelBase with Store {
       return monero!.getHeightByDate(date: date);
     } else if (type == WalletType.wownero) {
       return wownero!.getHeightByDate(date: date);
+    } else if (type == WalletType.beldex) {
+      return beldex!.getHeightByDate(date: date);
     }
     return 0;
   }

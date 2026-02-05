@@ -122,6 +122,7 @@ class MenuWidgetState extends State<MenuWidget> {
 
     moneroIcon = Image.asset('assets/images/crypto/monero.webp');
     bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.webp');
+    beldexIcon = Image.asset('assets/images/crypto/beldex.webp');
 
     return Row(
       mainAxisSize: MainAxisSize.max,

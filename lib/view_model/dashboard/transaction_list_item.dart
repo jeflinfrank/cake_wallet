@@ -77,6 +77,11 @@ class TransactionListItem extends ActionListItem with Keyable {
           return ' (${transaction.confirmations}/3)';
         }
         break;
+      case WalletType.beldex:
+        if (transaction.confirmations >= 0 && transaction.confirmations < 2) {
+          return ' (${transaction.confirmations}/2)';
+        }
+        break;
       case WalletType.litecoin:
         bool isPegIn = (transaction.additionalInfo["isPegIn"] as bool?) ?? false;
         bool isPegOut = (transaction.additionalInfo["isPegOut"] as bool?) ?? false;
@@ -109,6 +114,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       WalletType.monero,
       WalletType.haven,
       WalletType.wownero,
+      WalletType.beldex,
       WalletType.litecoin,
       WalletType.zano,
     ].contains(balanceViewModel.wallet.type)) {
@@ -251,12 +257,12 @@ class TransactionListItem extends ActionListItem with Keyable {
             cryptoAmount: decred!.formatterDecredAmountToDouble(amount: transaction.amount),
             price: price);
         break;
-      case WalletType.none:
       case WalletType.beldex:
         amount = calculateFiatAmountRaw(
             cryptoAmount: beldex!.formatterBeldexAmountToDouble(amount: transaction.amount),
             price: price);
         break;
+      case WalletType.none:
       case WalletType.banano:
       case WalletType.haven:
         break;

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/root_dir.dart';
@@ -29,6 +30,7 @@ class MoneroCacheDebug extends StatefulWidget {
 
 enum DebuggableWallets {
   monero,
+  beldex,
 }
 
 class _MoneroCacheDebugState extends State<MoneroCacheDebug> {
@@ -36,11 +38,13 @@ class _MoneroCacheDebugState extends State<MoneroCacheDebug> {
 
   late DebuggableWallets wallet = switch (dashboardViewModel.wallet.type) {
     WalletType.monero => DebuggableWallets.monero,
+    WalletType.beldex => DebuggableWallets.beldex,
     _ => throw Exception("Unknown wallet type"),
   };
 
   late Map<String, dynamic> walletCache = switch (wallet) {
     DebuggableWallets.monero => monero!.getWalletCacheDebug(),
+    DebuggableWallets.beldex => beldex!.getWalletCacheDebug(),
   };
 
   @override

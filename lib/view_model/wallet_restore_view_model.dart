@@ -80,18 +80,21 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   static const moneroSeedMnemonicLength = 25;
   static const decredSeedMnemonicLength = 15;
+  static const beldexSeedMnemonicLength = 25;
 
   late List<WalletRestoreMode> availableModes;
   late final bool hasSeedLanguageSelector = [
     WalletType.monero,
     WalletType.haven,
-    WalletType.wownero
+    WalletType.wownero,
+    WalletType.beldex
   ].contains(type);
 
   late final bool hasBlockchainHeightSelector = [
     WalletType.monero,
     WalletType.haven,
-    WalletType.wownero
+    WalletType.wownero,
+    WalletType.beldex
   ].contains(type);
   
   late final bool hasRestoreFromPrivateKey = [
@@ -337,6 +340,16 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             password: password,
             pubkey: viewKey!,
+          );
+        case WalletType.beldex:
+          return beldex!.createBeldexRestoreWalletFromKeysCredentials(
+            name: name,
+            height: height,
+            spendKey: spendKey!,
+            viewKey: viewKey!,
+            address: address!,
+            password: password,
+            language: 'English',
           );
         default:
           break;

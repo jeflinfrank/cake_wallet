@@ -50,7 +50,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   })  : _baseItems = <ListItem>[],
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
-        hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven]
+        hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.beldex]
             .contains(appStore.wallet!.type),
         amount = '',
         _settingsStore = appStore.settingsStore,
@@ -63,7 +63,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _init();
 
     selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
-    hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven].contains(wallet.type);
+    hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.beldex].contains(wallet.type);
   }
 
   static const String _cryptoNumberPattern = '0.00000000';
@@ -192,6 +192,23 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             isPrimary: isPrimary,
             name: subaddress.label,
             address: subaddress.address);
+      });
+      addressList.addAll(addressItems);
+    }
+
+    if (wallet.type == WalletType.beldex) {
+      final primaryAddress = beldex!.getSubaddressList(wallet).subaddresses.first;
+      final addressItems = beldex!.getSubaddressList(wallet).subaddresses.map((subaddress) {
+        final isPrimary = subaddress == primaryAddress;
+
+        return WalletAddressListItem(
+          id: subaddress.id,
+          isPrimary: isPrimary,
+          name: subaddress.label,
+          address: subaddress.address,
+          balance: subaddress.received,
+          txCount: subaddress.txCount,
+        );
       });
       addressList.addAll(addressItems);
     }
@@ -373,6 +390,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wownero!
           .getSubaddressList(wallet)
           .update(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id);
+    } else if (wallet.type == WalletType.beldex) {
+      beldex!
+          .getSubaddressList(wallet)
+          .update(wallet, accountIndex: beldex!.getCurrentAccount(wallet).id);
     }
   }
 
@@ -386,6 +407,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return monero!.getCurrentAccount(wallet).label;
       case WalletType.wownero:
         wownero!.getCurrentAccount(wallet).label;
+      case WalletType.beldex:
+        beldex!.getCurrentAccount(wallet).label;
       default:
         return '';
     }
@@ -402,6 +425,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   bool get hasAddressList => [
         WalletType.monero,
         WalletType.wownero,
+        WalletType.beldex,
         WalletType.haven,
         WalletType.bitcoinCash,
         WalletType.bitcoin,
@@ -483,7 +507,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   bool get isBalanceAvailable => isElectrumWallet;
 
   @computed
-  bool get isReceivedAvailable => [WalletType.monero, WalletType.wownero].contains(wallet.type);
+  bool get isReceivedAvailable => [WalletType.monero, WalletType.wownero, WalletType.beldex].contains(wallet.type);
 
   @computed
   bool get isSilentPayments =>
@@ -502,7 +526,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   bool get showAddManualAddresses =>
       !isAutoGenerateSubaddressEnabled ||
-      [WalletType.monero, WalletType.wownero].contains(wallet.type);
+      [WalletType.monero, WalletType.wownero, WalletType.beldex].contains(wallet.type);
 
   List<ListItem> _baseItems;
 
@@ -530,6 +554,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       WalletType.monero,
       WalletType.wownero,
       WalletType.haven,
+      WalletType.beldex,
     ].contains(wallet.type)) {
       _baseItems.add(WalletAccountListHeader());
     }

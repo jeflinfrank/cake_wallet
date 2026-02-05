@@ -55,11 +55,11 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
       case WalletType.monero:
       case WalletType.wownero:
+      case WalletType.beldex:
       case WalletType.none:
       case WalletType.haven:
       case WalletType.zano:
       case WalletType.decred:
-      case WalletType.beldex:
         return false;
     }
   }
@@ -75,6 +75,10 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       ].contains(type);
 
   bool get isNanoSeedTypeOptionsEnabled => [WalletType.nano].contains(type);
+
+   bool get isBeldexSeedTypeOptionsEnabled => [
+        WalletType.beldex,
+      ].contains(type);
 
   bool get hasPassphraseOption => [
         WalletType.bitcoin,

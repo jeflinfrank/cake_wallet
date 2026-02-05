@@ -111,10 +111,11 @@ class Node extends HiveObject with Keyable {
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.zano:
-      case WalletType.beldex:
       case WalletType.decred:
         return Uri.parse(
             "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
+      case WalletType.beldex:
+        return Uri.http(uriRaw, '');
       case WalletType.none:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -183,6 +184,7 @@ class Node extends HiveObject with Keyable {
         case WalletType.decred:
           return requestDecredNode();
         case WalletType.beldex:
+          return requestBeldexNode();
         case WalletType.none:
           return false;
       }
@@ -261,6 +263,70 @@ class Node extends HiveObject with Keyable {
         useSSL = true;
         try {
           final ret = await requestMoneroNode(methodName: methodName);
+          if (ret == true) {
+            await save();
+            return ret;
+          }
+          useSSL = oldUseSSL;
+        } catch (e) {
+          useSSL = oldUseSSL;
+        }
+      }
+
+      final resBody = json.decode(response.body) as Map<String, dynamic>;
+      return !(resBody['result']['offline'] as bool);
+    } catch (e) {
+      printV("error: $e");
+      return false;
+    }
+  }
+
+  Future<bool> requestBeldexNode({String methodName = 'get_info'}) async {
+    if (useSocksProxy) {
+      return await requestNodeWithProxy();
+    }
+
+    final path = '/json_rpc';
+    final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
+    final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
+
+    try {
+      final client = ProxyWrapper().getHttpIOClient();
+
+      final jsonBody = json.encode(body);
+
+      final response = await client.post(
+        rpcUri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonBody,
+      );
+      // Check if we received a 401 Unauthorized response
+      if (response.statusCode == 401) {
+        final daemonRpc = DaemonRpc(
+          rpcUri.toString(),
+          username: login ?? '',
+          password: password ?? '',
+        );
+        final response = await daemonRpc.call('get_info', {});
+        return !(response['offline'] as bool);
+      }
+
+      final responseString = await response.body;
+
+      if ((responseString.contains("400 Bad Request") // Some other generic error
+              ||
+              responseString.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+              ||
+              response.headers["location"] != null // Generic reverse proxy
+              ||
+              responseString
+                  .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
+          ) &&
+          !(useSSL ?? false)) {
+        final oldUseSSL = useSSL;
+        useSSL = true;
+        try {
+          final ret = await requestBeldexNode(methodName: methodName);
           if (ret == true) {
             await save();
             return ret;

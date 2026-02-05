@@ -446,6 +446,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         return HavenURI(amount: amount, address: inputAddress);
       case WalletType.nano:
         return NanoURI(amount: amount, address: inputAddress);
+      case WalletType.beldex:
+        return BeldexURI(amount: amount, address: inputAddress);
       default:
         return null;
     }

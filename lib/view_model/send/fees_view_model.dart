@@ -7,6 +7,7 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -98,12 +99,13 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         return transactionPriority == decred!.getDecredTransactionPrioritySlow();
       case WalletType.dogecoin:
         return transactionPriority == dogecoin!.getDogeCoinTransactionPrioritySlow();
+      case WalletType.beldex:
+        return transactionPriority == beldex!.getBeldexTransactionPrioritySlow();
       case WalletType.none:
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.solana:
       case WalletType.tron:
-      case WalletType.beldex:
       case WalletType.arbitrum:
         return false;
     }
@@ -209,6 +211,8 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         _settingsStore.priority[wallet.type] = base!.getDefaultTransactionPriority();
         break;
       case WalletType.beldex:
+        _settingsStore.priority[wallet.type] = beldex!.getBeldexTransactionPriorityAutomatic();
+        break;
       default:
         break;
     }

@@ -50,14 +50,14 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   String selectedMnemonicLanguage;
 
   bool get hasLanguageSelector =>
-      [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
+      [WalletType.monero, WalletType.haven, WalletType.wownero, WalletType.beldex].contains(type);
 
   bool get showLanguageSelector =>
       newWalletArguments?.mnemonic == null && hasLanguageSelector;
 
   bool get hasSeedType =>
       newWalletArguments?.mnemonic == null &&
-      [WalletType.monero, WalletType.wownero].contains(type);
+      [WalletType.monero, WalletType.wownero, WalletType.beldex].contains(type);
 
   @override
   WalletCredentials getCredentials(dynamic _options) {

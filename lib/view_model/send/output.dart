@@ -252,13 +252,13 @@ abstract class OutputBase with Store {
           break;
 
         /// end EVMs
-
-        case WalletType.haven:
-        case WalletType.nano:
-        case WalletType.banano:
         case WalletType.beldex:
           estimatedFee = beldex!.formatterBeldexAmountToDouble(amount: fee).toString();
           break;
+           
+        case WalletType.haven:
+        case WalletType.nano:
+        case WalletType.banano:
         case WalletType.none:
           // will not reach here as it doesn't have priority and this function is triggered only when priority changes
           break;

@@ -873,6 +873,7 @@ abstract class DashboardViewModelBase with Store {
     }
     switch (wallet.type) {
       case WalletType.monero:
+      case WalletType.beldex:
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
@@ -890,7 +891,6 @@ abstract class DashboardViewModelBase with Store {
         return true;
       case WalletType.zano:
       case WalletType.haven:
-      case WalletType.beldex:
       case WalletType.none:
         return false;
     }

@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -37,6 +38,7 @@ enum ProfilableWallet {
   monero,
   wownero,
   zano,
+  beldex,
 }
 
 class _PerformanceDebugState extends State<PerformanceDebug> {
@@ -48,6 +50,7 @@ class _PerformanceDebugState extends State<PerformanceDebug> {
     WalletType.monero => ProfilableWallet.monero,
     WalletType.wownero => ProfilableWallet.wownero,
     WalletType.zano => ProfilableWallet.zano,
+    WalletType.beldex => ProfilableWallet.beldex,
     _ => throw Exception("Unknown wallet type"),
   };
   final precalc = 1700298;
@@ -56,6 +59,7 @@ class _PerformanceDebugState extends State<PerformanceDebug> {
     ProfilableWallet.monero => monero!.debugCallLength(),
     ProfilableWallet.wownero => wownero!.debugCallLength(),
     ProfilableWallet.zano => zano!.debugCallLength(),
+    ProfilableWallet.beldex => beldex!.debugCallLength(),
   };
 
   int getOpenWalletTime() {
@@ -63,6 +67,12 @@ class _PerformanceDebugState extends State<PerformanceDebug> {
       return precalc;
     }
     if (debugCallLength["MONERO_Wallet_init"]!.isEmpty) {
+      return precalc;
+    }
+    if (debugCallLength["BELDEX_Wallet_init"] == null) {
+      return precalc;
+    }
+    if (debugCallLength["BELDEX_Wallet_init"]!.isEmpty) {
       return precalc;
     }
     return debugCallLength["MONERO_Wallet_init"]!.last;

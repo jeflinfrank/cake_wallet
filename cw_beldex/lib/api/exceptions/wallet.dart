@@ -15,7 +15,7 @@ import 'package:polyseed/polyseed.dart';
 bool debugBeldex = false;
 
 int getSyncingHeight() {
-  // final height = beldex.BELDEXX_cw_WalletListener_height(getWlptr());
+  // final height = beldex.BELDEX_cw_WalletListener_height(getWlptr());
   if (currentWallet == null) return 0;
   final h2 = currentWallet!.blockChainHeight();
   // printV("height: $height / $h2");

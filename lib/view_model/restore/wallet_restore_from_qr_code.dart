@@ -53,7 +53,10 @@ class WalletRestoreFromQRCode {
     'decred_wallet': WalletType.decred,
     'dogecoin': WalletType.dogecoin,
     'dogecoin-wallet': WalletType.dogecoin,
-    'dogecoin_wallet': WalletType.dogecoin
+    'dogecoin_wallet': WalletType.dogecoin,
+    'beldex': WalletType.beldex,
+    'beldex-wallet': WalletType.beldex,
+    'beldex_wallet': WalletType.beldex
   };
 
   static WalletType? _extractWalletType(String code) {
@@ -192,6 +195,15 @@ class WalletRestoreFromQRCode {
         return WalletRestoreMode.seed;
       }
 
+      if ((type == WalletType.beldex ) &&
+          Polyseed.isValidSeed(seedValue)) {
+        return WalletRestoreMode.seed;
+      }
+
+      if ((type == WalletType.beldex)) {
+        return WalletRestoreMode.seed;
+      }
+
       seedValue.split(' ').forEach((element) {
         if (!words.contains(element)) {
           throw Exception(
@@ -244,6 +256,18 @@ class WalletRestoreFromQRCode {
     }
 
     if (type == WalletType.monero) {
+      final codeParsed = json.decode(credentials['raw_qr'].toString());
+      if (codeParsed["version"] != 0)
+        throw UnimplementedError("Found view-only restore with unsupported version");
+      if (codeParsed["primaryAddress"] == null ||
+          codeParsed["privateViewKey"] == null ||
+          codeParsed["restoreHeight"] == null) {
+        throw UnimplementedError("Missing one or more attributes in the JSON");
+      }
+      return WalletRestoreMode.keys;
+    }
+
+    if (type == WalletType.beldex) {
       final codeParsed = json.decode(credentials['raw_qr'].toString());
       if (codeParsed["version"] != 0)
         throw UnimplementedError("Found view-only restore with unsupported version");
