@@ -23,6 +23,8 @@ dart run tool/generate_new_secrets.dart
 
 
 flutter pub get
+rm -f /etc/apt/sources.list.d/nodesource.list
+rm -f /etc/apt/trusted.gpg.d/nodesource.gpg
 apt-get update
 apt-get install -y ca-certificates git
 update-ca-certificates

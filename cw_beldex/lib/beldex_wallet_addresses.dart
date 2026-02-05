@@ -5,6 +5,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_beldex/api/subaddress_list.dart' as subaddress_list;
+import 'package:cw_beldex/api/wallet.dart';
 import 'package:cw_beldex/beldex_account_list.dart';
 import 'package:cw_beldex/beldex_subaddress_list.dart';
 import 'package:cw_beldex/beldex_transaction_history.dart';
