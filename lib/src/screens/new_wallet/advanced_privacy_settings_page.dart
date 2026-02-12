@@ -155,6 +155,19 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   ),
                 );
               }),
+            if (widget.privacySettingsViewModel.isBeldexSeedTypeOptionsEnabled &&
+                !widget.isChildWallet)
+              Observer(builder: (_) {
+                return SettingsChoicesCell(
+                  ChoicesListItem<BeldexSeedType>(
+                    title: S.current.seedtype,
+                    items: BeldexSeedType.all,
+                    selectedItem: widget.seedTypeViewModel.beldexSeedType,
+                    onItemSelected: widget.seedTypeViewModel.setBeldexSeedType,
+                    displayItem: (seedType) => seedType.shortTitle ?? seedType.toString(),
+                  ),
+                );
+              }),
             if (widget.privacySettingsViewModel.isBitcoinSeedTypeOptionsEnabled)
               Observer(builder: (_) {
                 return SettingsChoicesCell(

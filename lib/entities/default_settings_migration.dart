@@ -53,7 +53,7 @@ const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base.nownodes.io';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
-const beldexDefaultNodeUri = 'bdx.cakewallet.com:18081';
+const beldexDefaultNodeUri = 'publicnode1.rpcnode.stream:29095';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -1395,7 +1395,7 @@ Future<void> migrateExistingNodesToUseAutoSwitching(
     '37.27.100.59:10500',
     'zano.cakewallet.com:11211',
     'electrum.cakewallet.com:50002',
-    'bdx.cakewallet.com:18081',
+    'publicnode1.rpcnode.stream:29095',
   ];
   for (var node in [...nodes.values.toList(), ...powNodes.values.toList()]) {
     if (listOfDefaultNodesWithAutoSwitching.contains(node.uriRaw)) {

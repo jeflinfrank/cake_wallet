@@ -594,9 +594,20 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
           true;
     }
 
+    if (seedWords.length == 12 && walletRestoreViewModel.type == WalletType.beldex) {
+      return walletRestoreFromSeedFormKey.currentState?.blockchainHeightKey.currentState
+              ?.restoreHeightController.text.isNotEmpty ==
+          true;
+    }
+
     if ([WalletType.monero, WalletType.wownero, WalletType.haven]
             .contains(walletRestoreViewModel.type) &&
         seedWords.length == WalletRestoreViewModelBase.moneroSeedMnemonicLength) {
+      return true;
+    }
+
+    if ([WalletType.beldex].contains(walletRestoreViewModel.type) &&
+        seedWords.length == WalletRestoreViewModelBase.beldexSeedMnemonicLength) {
       return true;
     }
 

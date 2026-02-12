@@ -57,7 +57,11 @@ abstract class WalletCreationVMBase with Store {
   final SeedSettingsViewModel seedSettingsViewModel;
 
   bool isPolyseed(String seed) =>
-      [WalletType.monero, WalletType.wownero, WalletType.beldex].contains(type) &&
+      [WalletType.monero, WalletType.wownero].contains(type) &&
+      (Polyseed.isValidSeed(seed) || (seed.split(" ").length == 14));
+
+  bool isBeldexPolyseed(String seed) =>
+      [WalletType.beldex].contains(type) &&
       (Polyseed.isValidSeed(seed) || (seed.split(" ").length == 14));
 
   Future<bool> nameExists(String name) => walletCreationService.exists(name);

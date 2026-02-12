@@ -119,6 +119,9 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/${
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/wownero/${LIB_TRIPLET}_libwallet2_api_c.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "wownero_libwallet2_api_c.so"
   COMPONENT Runtime)
 
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/beldex/${LIB_TRIPLET}_libwallet2_api_c.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "beldex_libwallet2_api_c.so"
+  COMPONENT Runtime)
+
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
   COMPONENT Runtime)
 

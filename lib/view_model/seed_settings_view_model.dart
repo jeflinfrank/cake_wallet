@@ -31,6 +31,12 @@ abstract class SeedSettingsViewModelBase with Store {
       _appStore.settingsStore.nanoSeedType = derivationType;
 
   @computed
+  BeldexSeedType get beldexSeedType => _appStore.settingsStore.beldexSeedType;
+
+  @action
+  void setBeldexSeedType(BeldexSeedType seedType) => _appStore.settingsStore.beldexSeedType = seedType;
+
+  @computed
   String? get passphrase => this._seedSettingsStore.passphrase;
 
   @action

@@ -1,32 +1,30 @@
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
-import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/beldex_seed_language_picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 
-class SeedLanguageSelector extends StatefulWidget {
-  SeedLanguageSelector({
+class BeldexSeedLanguageSelector extends StatefulWidget {
+  BeldexSeedLanguageSelector({
     required this.initialSelected,
-    this.seedType = MoneroSeedType.defaultSeedType,
+    this.seedType = BeldexSeedType.defaultSeedType,
     this.buttonKey,
     this.borderRadius,
     Key? key,
   }) : super(key: key);
 
   final String initialSelected;
-  final MoneroSeedType seedType;
+  final BeldexSeedType seedType;
   final Key? buttonKey;
   final BorderRadius? borderRadius;
 
   @override
-  SeedLanguageSelectorState createState() => SeedLanguageSelectorState(selected: initialSelected);
+  BeldexSeedLanguageSelectorState createState() => BeldexSeedLanguageSelectorState(selected: initialSelected);
 }
 
-class SeedLanguageSelectorState extends State<SeedLanguageSelector> {
-  SeedLanguageSelectorState({required this.selected});
-
+class BeldexSeedLanguageSelectorState extends State<BeldexSeedLanguageSelector> {
+  BeldexSeedLanguageSelectorState({required this.selected});
   String selected;
 
   @override
@@ -36,11 +34,11 @@ class SeedLanguageSelectorState extends State<SeedLanguageSelector> {
       key: widget.buttonKey,
       image: null,
       text:
-          "${seedLanguages.firstWhere((e) => e.name == selected).nameLocalized} (${S.of(context).seed_language})",
+          "${beldexSeedLanguages.firstWhere((e) => e.name == selected).nameLocalized} (${S.of(context).seed_language})",
       onTap: () async {
         await showPopUp<String>(
           context: context,
-          builder: (_) => SeedLanguagePicker(
+          builder: (_) => BeldexSeedLanguagePicker(
             selected: this.selected,
             seedType: widget.seedType,
             onItemSelected: (String selected) => setState(() => this.selected = selected),

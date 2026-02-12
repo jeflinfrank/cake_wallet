@@ -106,6 +106,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   @computed
   bool get isPolySeed => _settingsStore.moneroSeedType == MoneroSeedType.polyseed;
 
+  @computed
+  bool get isBeldexPolySeed => _settingsStore.beldexSeedType == BeldexSeedType.polyseed;
+
   @action
   void setFiatApiMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;
 
