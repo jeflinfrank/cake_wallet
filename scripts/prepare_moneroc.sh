@@ -11,7 +11,7 @@ then
     cd monero_c
     # NOTE: Make sure to update monero_c prebuilds link in workflow files
     # https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.0-RC9/release-bundle.zip
-    git checkout 64a5b239db84e32d118240881dd9023a8e5e4dcd
+    git checkout 1c8f89042dc4ee4e28d9ab9b6fd297212f84c310
     git reset --hard
     git submodule update --init --force --recursive
     ./apply_patches.sh monero
