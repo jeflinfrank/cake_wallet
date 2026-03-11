@@ -104,6 +104,14 @@ class RestoreFromSeedOrKeysPageRobot {
     await commonTestCases.tapItemByKey('picker_items_index_${selectedType.title}_button_key');
   }
 
+  Future<void> chooseSeedTypeForBeldexWallets(BeldexSeedType selectedType) async {
+    await commonTestCases.tapItemByKey('wallet_restore_from_seed_seedtype_picker_button_key');
+
+    await commonTestCases.defaultSleepTime();
+
+    await commonTestCases.tapItemByKey('picker_items_index_${selectedType.title}_button_key');
+  }
+
   Future<void> onPasteSeedPhraseButtonPressed() async {
     await commonTestCases.tapItemByKey('wallet_restore_from_seed_wallet_seeds_paste_button_key');
   }

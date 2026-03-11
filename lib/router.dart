@@ -37,6 +37,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/exchange_provider_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
+import 'package:cake_wallet/src/screens/dev/beldex_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
@@ -55,6 +56,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart'
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
+import 'package:cake_wallet/src/screens/beldex_accounts/beldex_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/wallet_group_display_page.dart';
@@ -135,6 +137,7 @@ import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
+import 'package:cake_wallet/view_model/beldex_account_list/account_list_item.dart' as beldex_account_list;
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
@@ -615,6 +618,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<String>(
           builder: (_) => getIt.get<MoneroAccountEditOrCreatePage>(
               param1: settings.arguments as AccountListItem?));
+    
+    case Routes.accountCreation:
+      return CupertinoPageRoute<String>(
+          builder: (_) => getIt.get<BeldexAccountEditOrCreatePage>(
+              param1: settings.arguments as beldex_account_list.AccountListItem?));
 
     case Routes.nanoAccountCreation:
       return CupertinoPageRoute<String>(
@@ -949,6 +957,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devMoneroBackgroundSync:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevMoneroBackgroundSyncPage>(),
+      );
+    case Routes.devBeldexBackgroundSync:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DevBeldexBackgroundSyncPage>(),
       );
     case Routes.devSharedPreferences:
       return MaterialPageRoute<void>(

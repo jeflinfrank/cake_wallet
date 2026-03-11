@@ -87,6 +87,13 @@ class OtherSettingsPage extends BasePage {
                       Navigator.of(context).pushNamed(Routes.devMoneroBackgroundSync),
                 ),
               if (FeatureFlag.hasDevOptions &&
+                  _otherSettingsViewModel.walletType == WalletType.beldex)
+                SettingsCellWithArrow(
+                  title: '[dev] beldex background sync',
+                  handler: (context) =>
+                      Navigator.of(context).pushNamed(Routes.devBeldexBackgroundSync),
+                ),
+              if (FeatureFlag.hasDevOptions &&
                   [WalletType.monero, WalletType.wownero, WalletType.zano]
                       .contains(_otherSettingsViewModel.walletType))
                 SettingsCellWithArrow(
@@ -98,6 +105,21 @@ class OtherSettingsPage extends BasePage {
                   [WalletType.monero].contains(_otherSettingsViewModel.walletType))
                 SettingsCellWithArrow(
                   title: '[dev] xmr wallet cache debug',
+                  handler: (context) =>
+                      Navigator.of(context).pushNamed(Routes.devMoneroWalletCacheDebug),
+                ),
+              if (FeatureFlag.hasDevOptions &&
+                  [WalletType.beldex]
+                      .contains(_otherSettingsViewModel.walletType))
+                SettingsCellWithArrow(
+                  title: '[dev] bdx call profiler',
+                  handler: (context) =>
+                      Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler),
+                ),
+              if (FeatureFlag.hasDevOptions &&
+                  [WalletType.beldex].contains(_otherSettingsViewModel.walletType))
+                SettingsCellWithArrow(
+                  title: '[dev] bdx wallet cache debug',
                   handler: (context) =>
                       Navigator.of(context).pushNamed(Routes.devMoneroWalletCacheDebug),
                 ),

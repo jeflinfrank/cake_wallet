@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/decred/decred.dart';
 
@@ -189,7 +190,9 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
           height = decred!.heightByDate(date);
         } else if (widget.walletType == WalletType.monero) {
           height = monero!.getHeightByDate(date: date);
-        } else {
+        } else if (widget.walletType == WalletType.beldex) {
+          height = beldex!.getHeightByDate(date: date);
+        }else {
           assert(widget.walletType == WalletType.wownero,
               "unknown currency in BlockchainHeightWidget");
           height = wownero!.getHeightByDate(date: date);

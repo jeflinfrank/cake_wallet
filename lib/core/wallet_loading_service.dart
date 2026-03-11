@@ -51,6 +51,12 @@ class WalletLoadingService {
         final newNameKey = PreferencesKey.moneroWalletUpdateV1Key(newName);
         await sharedPreferences.setBool(newNameKey, isPasswordUpdated);
       }
+      if (type == WalletType.beldex) {
+        final oldNameKey = PreferencesKey.beldexWalletUpdateV1Key(name);
+        final isPasswordUpdated = sharedPreferences.getBool(oldNameKey) ?? false;
+        final newNameKey = PreferencesKey.beldexWalletUpdateV1Key(newName);
+        await sharedPreferences.setBool(newNameKey, isPasswordUpdated);
+      }
     } catch (error, stack) {
       await ExceptionHandler.resetLastPopupDate();
       await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
@@ -68,6 +74,9 @@ class WalletLoadingService {
 
       if (type == WalletType.monero) {
         await updateMoneroWalletPassword(wallet);
+      }
+      if (type == WalletType.beldex) {
+        await updateBeldexWalletPassword(wallet);
       }
 
       return wallet;
@@ -96,6 +105,9 @@ class WalletLoadingService {
 
           if (walletInfo.type == WalletType.monero) {
             await updateMoneroWalletPassword(wallet);
+          }
+          if (walletInfo.type == WalletType.beldex) {
+            await updateBeldexWalletPassword(wallet);
           }
 
           await sharedPreferences.setString(
@@ -170,6 +182,25 @@ class WalletLoadingService {
 
   Future<void> updateMoneroWalletPassword(WalletBase wallet) async {
     final key = PreferencesKey.moneroWalletUpdateV1Key(wallet.name);
+    var isPasswordUpdated = sharedPreferences.getBool(key) ?? false;
+
+    if (isPasswordUpdated) {
+      return;
+    }
+
+    final password = generateWalletPassword();
+    // Save new generated password with backup key for case where
+    // wallet will change password, but it will fail to update in secure storage
+    final bakWalletName = '#__${wallet.name}_bak__#';
+    await keyService.saveWalletPassword(walletName: bakWalletName, password: password);
+    await wallet.changePassword(password);
+    await keyService.saveWalletPassword(walletName: wallet.name, password: password);
+    isPasswordUpdated = true;
+    await sharedPreferences.setBool(key, isPasswordUpdated);
+  }
+
+  Future<void> updateBeldexWalletPassword(WalletBase wallet) async {
+    final key = PreferencesKey.beldexWalletUpdateV1Key(wallet.name);
     var isPasswordUpdated = sharedPreferences.getBool(key) ?? false;
 
     if (isPasswordUpdated) {

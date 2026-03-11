@@ -13,6 +13,7 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/beldex/beldex.dart' as beldex;
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
@@ -235,6 +236,35 @@ abstract class DashboardViewModelBase with Store {
           ),
         ),
       );
+    } else if (_wallet.type == WalletType.beldex) {
+      subname = beldex.beldex!.getCurrentAccount(_wallet).label;
+
+      _onBeldexAccountChangeReaction = reaction(
+          (_) => beldex.beldex!.getBeldexWalletDetails(wallet).account,
+          (beldex.Account account) => _onBeldexAccountChange(_wallet));
+
+      _onBeldexBalanceChangeReaction = reaction(
+          (_) => beldex.beldex!.getBeldexWalletDetails(wallet).balance,
+          (beldex.BeldexBalance balance) => _onBeldexTransactionsUpdate(_wallet));
+
+      final _accountTransactions = _wallet.transactionHistory.transactions.values
+          .where((tx) =>
+              beldex.beldex!.getTransactionInfoAccountId(tx) == beldex.beldex!.getCurrentAccount(wallet).id)
+          .toList();
+
+      final sortedTransactions = [..._accountTransactions];
+      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
+
+      transactions = ObservableList.of(
+        sortedTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey('beldex_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     } else if (_wallet.type == WalletType.wownero) {
       subname = wow.wownero!.getCurrentAccount(_wallet).label;
 
@@ -338,7 +368,9 @@ abstract class DashboardViewModelBase with Store {
 
     try {
       final currentAccountId = wallet.type == WalletType.monero
-          ? monero!.getCurrentAccount(wallet).id
+      ? monero!.getCurrentAccount(wallet).id
+      : wallet.type == WalletType.beldex
+          ? beldex.beldex!.getCurrentAccount(wallet).id
           : wallet.type == WalletType.wownero
               ? wow.wownero!.getCurrentAccount(wallet).id
               : null;
@@ -348,6 +380,8 @@ abstract class DashboardViewModelBase with Store {
         bool isRelevant = true;
         if (wallet.type == WalletType.monero) {
           isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
+        } else if (wallet.type == WalletType.beldex) {
+          isRelevant = beldex.beldex!.getTransactionInfoAccountId(tx) == currentAccountId;
         } else if (wallet.type == WalletType.wownero) {
           isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
         }
@@ -497,7 +531,7 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get hasBackgroundSync => [
-        WalletType.monero,
+        WalletType.monero, WalletType.beldex
       ].contains(wallet.type);
 
   @computed
@@ -511,6 +545,17 @@ abstract class DashboardViewModelBase with Store {
     if (wallet.type != WalletType.monero) return null;
     try {
       monero!.monerocCheck();
+    } catch (e) {
+      return e.toString();
+    }
+    return null;
+  }
+
+  @computed
+  String? get getBeldexError {
+    if (wallet.type != WalletType.beldex) return null;
+    try {
+      beldex.beldex!.beldexcCheck();
     } catch (e) {
       return e.toString();
     }
@@ -545,6 +590,29 @@ abstract class DashboardViewModelBase with Store {
       // if (wallet.seed == null) "wallet seed is null",
       // if (wallet.seed == "") "wallet seed is empty",
       if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
+          "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
+        "primary address is invalid, you won't be able to receive / spend funds",
+    ];
+    return errors;
+  }
+
+  List<String> get isBeldexWalletBrokenReasons {
+    if (wallet.type != WalletType.beldex) return [];
+    final keys = beldex.beldex!.getKeys(wallet);
+    List<String> errors = [
+      // leaving these commented out for now, I'll be able to fix that properly in the airgap update
+      // to not cause work duplication, this will do the job as well, it will be slightly less precise
+      // about what happened - but still enough.
+      // if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
+      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("") &&
+          !wallet.isHardwareWallet)
+        "private view key is 0",
+      // if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
+      if (keys['publicViewKey'] == List.generate(64, (index) => "0").join(""))
+        "public view key is 0",
+      // if (wallet.seed == null) "wallet seed is null",
+      // if (wallet.seed == "") "wallet seed is empty",
+      if (beldex.beldex!.getSubaddressList(wallet).getAll(wallet)[0].address ==
           "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
         "primary address is invalid, you won't be able to receive / spend funds",
     ];
@@ -861,6 +929,10 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
+  ReactionDisposer? _onBeldexAccountChangeReaction;
+
+  ReactionDisposer? _onBeldexBalanceChangeReaction;
+
   ReactionDisposer? _transactionDisposer;
 
   @computed
@@ -947,6 +1019,21 @@ abstract class DashboardViewModelBase with Store {
           (MoneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
 
       _onMoneroTransactionsUpdate(wallet);
+    } else if (wallet.type == WalletType.beldex) {
+      subname = beldex.beldex!.getCurrentAccount(wallet).label;
+
+      _onBeldexAccountChangeReaction?.reaction.dispose();
+      _onBeldexBalanceChangeReaction?.reaction.dispose();
+
+      _onBeldexAccountChangeReaction = reaction(
+          (_) => beldex.beldex!.getBeldexWalletDetails(wallet).account,
+          (beldex.Account account) => _onBeldexAccountChange(wallet));
+
+      _onBeldexBalanceChangeReaction = reaction(
+          (_) => beldex.beldex!.getBeldexWalletDetails(wallet).balance,
+          (beldex.BeldexBalance balance) => _onBeldexTransactionsUpdate(wallet));
+
+      _onBeldexTransactionsUpdate(wallet);
     } else if (wallet.type == WalletType.wownero) {
       subname = wow.wownero!.getCurrentAccount(wallet).label;
 
@@ -1048,6 +1135,39 @@ abstract class DashboardViewModelBase with Store {
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore,
             key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
+    }
+  }
+
+  @action
+  void _onBeldexAccountChange(WalletBase wallet) {
+    if (wallet.type == WalletType.beldex) {
+      subname = beldex.beldex!.getCurrentAccount(wallet).label;
+    }
+    _onBeldexTransactionsUpdate(wallet);
+  } 
+
+  @action
+  void _onBeldexTransactionsUpdate(WalletBase wallet) {
+    transactions.clear();
+    if (wallet.type == WalletType.beldex) {
+      final _accountTransactions = beldex.beldex!
+          .getTransactionHistory(wallet)
+          .transactions
+          .values
+          .where((tx) =>
+              beldex.beldex!.getTransactionInfoAccountId(tx) == beldex.beldex!.getCurrentAccount(wallet).id)
+          .toList();
+
+      transactions.addAll(
+        _accountTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey('beldex_transaction_history_item_${transaction.id}_key'),
           ),
         ),
       );

@@ -132,6 +132,14 @@ Future<void> defaultSettingsMigration(
             type: WalletType.haven,
             currentNodePreferenceKey: PreferencesKey.currentHavenNodeIdKey,
           );
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.beldex,
+            currentNodePreferenceKey: PreferencesKey.currentBeldexNodeIdKey,
+            useSSL: true,
+            trusted: true,
+          );
           break;
         case 2:
           await replaceNodesMigration(nodes: nodes);
@@ -147,6 +155,18 @@ Future<void> defaultSettingsMigration(
               'xmr-node-uk.cakewallet.com:18081',
               'eu-node.cakewallet.io:18081',
               'node.cakewallet.io:18081'
+            ],
+          );
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.beldex,
+            newDefaultUri: beldexDefaultNodeUri,
+            currentNodePreferenceKey: PreferencesKey.currentBeldexNodeIdKey,
+            useSSL: true,
+            trusted: true,
+            oldUri: [
+              'publicnode1.rpcnode.stream:29095'
             ],
           );
           break;
@@ -168,6 +188,7 @@ Future<void> defaultSettingsMigration(
 
         case 5:
           await addAddressesForMoneroWallets();
+          await addAddressesForBeldexWallets();
           break;
 
         case 6:
@@ -191,6 +212,15 @@ Future<void> defaultSettingsMigration(
             currentNodePreferenceKey: PreferencesKey.currentNodeIdKey,
             trusted: true,
             oldUri: ['.cakewallet.com'],
+          );
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.beldex,
+            newDefaultUri: beldexDefaultNodeUri,
+            currentNodePreferenceKey: PreferencesKey.currentBeldexNodeIdKey,
+            trusted: true,
+            oldUri: ['.rpcnode.stream'],
           );
           break;
 
@@ -235,6 +265,7 @@ Future<void> defaultSettingsMigration(
 
         case 18:
           addWalletNodeList(nodes: nodes, type: WalletType.monero);
+          addWalletNodeList(nodes: nodes, type: WalletType.beldex);
           break;
 
         case 19:
@@ -309,6 +340,7 @@ Future<void> defaultSettingsMigration(
 
         case 28:
           await _updateMoneroPriority(sharedPreferences);
+          await _updateBeldexPriority(sharedPreferences);
           break;
         case 29:
           await _changeDefaultNode(
@@ -562,15 +594,15 @@ Future<void> defaultSettingsMigration(
           await _backupWowneroSeeds(havenSeedStore);
           break;
 
-         case 55:
-          await addWalletNodeList(nodes: nodes, type: WalletType.beldex);
-          await _changeDefaultNode(
-            nodes: nodes,
-            sharedPreferences: sharedPreferences,
-            type: WalletType.beldex,
-            currentNodePreferenceKey: PreferencesKey.currentBeldexNodeIdKey,
-          );
-          break;
+        //  case 55:
+        //   await addWalletNodeList(nodes: nodes, type: WalletType.beldex);
+        //   await _changeDefaultNode(
+        //     nodes: nodes,
+        //     sharedPreferences: sharedPreferences,
+        //     type: WalletType.beldex,
+        //     currentNodePreferenceKey: PreferencesKey.currentBeldexNodeIdKey,
+        //   );
+        //   break;
 
         default:
           break;
@@ -713,6 +745,7 @@ Future<void> _fixNodesUseSSLFlag(Box<Node> nodes) async {
       case cakeWalletBitcoinElectrumUri:
       case newCakeWalletBitcoinUri:
       case newCakeWalletMoneroUri:
+      case beldexDefaultNodeUri:
         node.useSSL = true;
         node.trusted = true;
         await node.save();
@@ -773,6 +806,18 @@ Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
   if (currentPriority == 1) {
     sharedPreferences.setInt(PreferencesKey.moneroTransactionPriority,
         monero!.getDefaultTransactionPriority().serialize()); // 0
+  }
+}
+
+Future<void> _updateBeldexPriority(SharedPreferences sharedPreferences) async {
+  final currentPriority =
+      await sharedPreferences.getInt(PreferencesKey.beldexTransactionPriority) ??
+          beldex!.getDefaultTransactionPriority().serialize();
+
+  // was set to automatic but automatic should be 0
+  if (currentPriority == 1) {
+    sharedPreferences.setInt(PreferencesKey.beldexTransactionPriority,
+        beldex!.getDefaultTransactionPriority().serialize()); // 0
   }
 }
 
@@ -1026,6 +1071,27 @@ Future<void> addAddressesForMoneroWallets() async {
   });
 }
 
+Future<void> addAddressesForBeldexWallets() async {
+  final beldexWalletsInfo = (await WalletInfo.getAll()).where((info) => info.type == WalletType.beldex);
+  beldexWalletsInfo.forEach((info) async {
+    try {
+      final walletPath = await pathForWallet(name: info.name, type: WalletType.beldex);
+      final addressFilePath = '$walletPath.address.txt';
+      final addressFile = File(addressFilePath);
+
+      if (!addressFile.existsSync()) {
+        return;
+      }
+
+      final addressText = await addressFile.readAsString();
+      info.address = addressText;
+      await info.save();
+    } catch (e) {
+      printV(e.toString());
+    }
+  });
+}
+
 Future<void> updateDisplayModes(SharedPreferences sharedPreferences) async {
   final currentBalanceDisplayMode =
       sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey) ?? -1;
@@ -1050,6 +1116,8 @@ Future<void> changeTransactionPriorityAndFeeRateKeys(SharedPreferences sharedPre
       sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy)!;
   await sharedPreferences.setInt(
       PreferencesKey.moneroTransactionPriority, legacyTransactionPriority);
+  await sharedPreferences.setInt(
+      PreferencesKey.beldexTransactionPriority, legacyTransactionPriority);
   await sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
       bitcoin!.getMediumTransactionPriority().serialize());
 }

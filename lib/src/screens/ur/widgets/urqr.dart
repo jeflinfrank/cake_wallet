@@ -85,7 +85,8 @@ class _URQRState extends State<URQR> {
           ),
         ),
         if (widget.urqr.values.length > 1)
-          widget.walletType == WalletType.monero
+          (widget.walletType == WalletType.monero ||
+          widget.walletType == WalletType.beldex)
               ? _legacySwitch(context)
               : _newSwitch(context),
         if (FeatureFlag.hasDevOptions) ...{

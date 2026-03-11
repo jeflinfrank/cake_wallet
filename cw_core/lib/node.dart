@@ -96,6 +96,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.monero:
       case WalletType.haven:
       case WalletType.wownero:
+      case WalletType.beldex:
         return Uri.http(uriRaw, '');
       case WalletType.bitcoin:
       case WalletType.litecoin:
@@ -114,8 +115,6 @@ class Node extends HiveObject with Keyable {
       case WalletType.decred:
         return Uri.parse(
             "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
-      case WalletType.beldex:
-        return Uri.http(uriRaw, '');
       case WalletType.none:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -165,6 +164,8 @@ class Node extends HiveObject with Keyable {
         case WalletType.haven:
         case WalletType.wownero:
           return requestMoneroNode();
+        case WalletType.beldex:
+          return requestBeldexNode();
         case WalletType.nano:
         case WalletType.banano:
           return requestNanoNode();
@@ -183,8 +184,6 @@ class Node extends HiveObject with Keyable {
           return requestZanoNode();
         case WalletType.decred:
           return requestDecredNode();
-        case WalletType.beldex:
-          return requestBeldexNode();
         case WalletType.none:
           return false;
       }

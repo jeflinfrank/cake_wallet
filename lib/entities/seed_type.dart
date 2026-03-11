@@ -97,7 +97,7 @@ class BeldexSeedType extends EnumerableItem<int> with Serializable<int> {
 
   static const legacy = BeldexSeedType(raw: 0, title: 'Legacy (25 words)', shortTitle: "Legacy");
   static const polyseed = BeldexSeedType(raw: 1, title: 'Polyseed (16 words)', shortTitle: "Polyseed");
-  static const bip39 = BeldexSeedType(raw: 3, title: 'BIP39 (12 words)', shortTitle: "BIP39");
+  static const bip39 = BeldexSeedType(raw: 2, title: 'BIP39 (12 words)', shortTitle: "BIP39");
 
   static BeldexSeedType deserialize({required int raw}) {
     switch (raw) {

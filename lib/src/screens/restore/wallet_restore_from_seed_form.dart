@@ -74,7 +74,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   final GlobalKey<FormState> formKey;
   late ReactionDisposer moneroSeedTypeReaction;
   late ReactionDisposer beldexSeedTypeReaction;
-  
   String language;
   void Function()? passwordListener;
   void Function()? repeatedPasswordListener;
@@ -133,30 +132,21 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   }
 
   void onSeedChange(String seed) {
-    if ([WalletType.monero, WalletType.wownero].contains(widget.type) &&
+    if ([WalletType.monero, WalletType.wownero, WalletType.beldex].contains(widget.type) &&
         (seed.split(" ").length == 12 || Polyseed.isValidSeed(seed))) {
       try {
         final lang = PolyseedLang.getByPhrase(seed);
 
         if (widget.type == WalletType.monero && seed.split(" ").length == 12) {
           _changeSeedType(MoneroSeedType.bip39);
-        } else {
-          _changeSeedType(MoneroSeedType.polyseed);
-        }
-        _changeLanguage(lang.nameEnglish, true);
-      } catch (e) {
-        printV(e);
-      }
-    }
-    if ([WalletType.beldex].contains(widget.type) &&
-        (seed.split(" ").length == 12 || Polyseed.isValidSeed(seed))) {
-      try {
-        final lang = PolyseedLang.getByPhrase(seed);
-
-        if (widget.type == WalletType.beldex && seed.split(" ").length == 12) {
+        } else if (widget.type == WalletType.beldex && seed.split(" ").length == 12) {
           _changeBeldexSeedType(BeldexSeedType.bip39);
         } else {
-          _changeBeldexSeedType(BeldexSeedType.polyseed);
+          if (widget.type == WalletType.beldex) {
+            _changeBeldexSeedType(BeldexSeedType.polyseed);
+          } else {
+            _changeSeedType(MoneroSeedType.polyseed);
+          }
         }
         _changeLanguage(lang.nameEnglish, true);
       } catch (e) {
@@ -221,60 +211,33 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             seedTextFieldKey: ValueKey('wallet_restore_from_seed_wallet_seeds_textfield_key'),
             pasteButtonKey: ValueKey('wallet_restore_from_seed_wallet_seeds_paste_button_key'),
           ),
-          if ([WalletType.monero, WalletType.wownero].contains(widget.type))
+          if ([WalletType.monero, WalletType.wownero, WalletType.beldex].contains(widget.type))
             GestureDetector(
               key: ValueKey('wallet_restore_from_seed_seedtype_picker_button_key'),
               onTap: () async {
                 await showPopUp<void>(
                   context: context,
                   builder: (_) => Picker(
-                    items: _getItems(),
-                    selectedAtIndex: isPolyseed
-                        ? 1
-                        : (seedTypeController.value.text.contains("14") &&
-                                    widget.type == WalletType.wownero) ||
-                                isBip39
-                            ? 2
-                            : 0,
+                    items: widget.type == WalletType.beldex
+                        ? _getBeldexItems()
+                        : _getItems(),
+                    selectedAtIndex: widget.type == WalletType.beldex
+                      ? (isBeldexPolyseed ? 1 : isBeldexBip39 ? 2 : 0)
+                      : isPolyseed
+                          ? 1
+                          : (seedTypeController.value.text.contains("14") &&
+                                      widget.type == WalletType.wownero) ||
+                                  isBip39
+                              ? 2
+                              : 0,
                     mainAxisAlignment: MainAxisAlignment.start,
-                    onItemSelected: _changeSeedType,
-                    isSeparated: false,
-                  ),
-                );
-              },
-              child: Container(
-                color: Colors.transparent,
-                padding: EdgeInsets.only(top: 20.0),
-                child: IgnorePointer(
-                  child: BaseTextFormField(
-                    controller: seedTypeController,
-                    enableInteractiveSelection: false,
-                    readOnly: true,
-                    suffixIcon: expandIcon,
-                    textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ),
-              ),
-            ),
-          if ([WalletType.beldex].contains(widget.type))
-            GestureDetector(
-              key: ValueKey('wallet_restore_from_seed_seedtype_picker_button_key'),
-              onTap: () async {
-                await showPopUp<void>(
-                  context: context,
-                  builder: (_) => Picker(
-                    items: _getBeldexItems(),
-                    selectedAtIndex: isBeldexPolyseed
-                        ? 1
-                        : isBeldexBip39
-                          ? 2
-                          : 0,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    onItemSelected: _changeBeldexSeedType,
+                    onItemSelected: (item) {
+                      if (widget.type == WalletType.beldex) {
+                        _changeBeldexSeedType(item as BeldexSeedType);
+                      } else {
+                        _changeSeedType(item as MoneroSeedType);
+                      }
+                    },
                     isSeparated: false,
                   ),
                 );
@@ -317,11 +280,17 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 onTap: () async {
                   await showPopUp<void>(
                     context: context,
-                    builder: (_) => SeedLanguagePicker(
-                      selected: language,
-                      onItemSelected: (lang) => _changeLanguage(lang, isPolyseed || isBip39),
-                      seedType: widget.seedSettingsViewModel.moneroSeedType,
-                    ),
+                    builder: (_) => widget.type == WalletType.beldex
+                        ? BeldexSeedLanguagePicker(
+                            selected: language,
+                            onItemSelected: (lang) => _changeLanguage(lang, isBeldexPolyseed || isBeldexBip39),
+                            seedType: widget.seedSettingsViewModel.beldexSeedType,
+                          )
+                        : SeedLanguagePicker(
+                            selected: language,
+                            onItemSelected: (lang) => _changeLanguage(lang, isPolyseed || isBip39),
+                            seedType: widget.seedSettingsViewModel.moneroSeedType,
+                          ),
                   );
                 },
                 child: Container(
@@ -342,38 +311,9 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                   ),
                 ),
               ),
-          if (widget.displayLanguageSelector)
-            if (!seedTypeController.value.text.contains("14") && widget.displayLanguageSelector)
-              GestureDetector(
-                onTap: () async {
-                  await showPopUp<void>(
-                    context: context,
-                    builder: (_) => BeldexSeedLanguagePicker(
-                      selected: language,
-                      onItemSelected: (lang) => _changeLanguage(lang, isPolyseed || isBip39),
-                      seedType: widget.seedSettingsViewModel.beldexSeedType,
-                    ),
-                  );
-                },
-                child: Container(
-                  color: Colors.transparent,
-                  padding: EdgeInsets.only(top: 20.0),
-                  child: IgnorePointer(
-                    child: BaseTextFormField(
-                      controller: languageController,
-                      enableInteractiveSelection: false,
-                      readOnly: true,
-                      suffixIcon: expandIcon,
-                      textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                  ),
-                ),
-              ),
-          if ((!isPolyseed) && widget.displayBlockHeightSelector)
+          if (widget.displayBlockHeightSelector &&
+              ((widget.type != WalletType.beldex && !isPolyseed) ||
+              (widget.type == WalletType.beldex && !isBeldexPolyseed)))
             BlockchainHeightWidget(
               focusNode: widget.blockHeightFocusNode,
               key: blockchainHeightKey,
@@ -381,21 +321,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 'wallet_restore_from_seed_blockheight_textfield_key',
               ),
               onHeightOrDateEntered: widget.onHeightOrDateEntered,
-              hasDatePicker: [WalletType.monero, WalletType.wownero].contains(
-                widget.type,
-              ),
-              walletType: widget.type,
-            ),
-          if ((!isBeldexPolyseed) && widget.displayBlockHeightSelector)
-            BlockchainHeightWidget(
-              focusNode: widget.blockHeightFocusNode,
-              key: blockchainHeightKey,
-              blockHeightTextFieldKey: ValueKey(
-                'wallet_restore_from_seed_blockheight_textfield_key',
-              ),
-              onHeightOrDateEntered: widget.onHeightOrDateEntered,
-              hasDatePicker: [WalletType.beldex].contains(
-                widget.type,
+              hasDatePicker: [WalletType.monero, WalletType.wownero, WalletType.beldex].contains(
+                widget.type
               ),
               walletType: widget.type,
             ),

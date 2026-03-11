@@ -600,6 +600,13 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
           true;
     }
 
+    // if (walletRestoreViewModel.type == WalletType.beldex) {
+    //   return seedWords.isNotEmpty;
+    // }
+    // if (seedWords.length == 16 && walletRestoreViewModel.type == WalletType.beldex) {
+    //   return true;
+    // }
+
     if ([WalletType.monero, WalletType.wownero, WalletType.haven]
             .contains(walletRestoreViewModel.type) &&
         seedWords.length == WalletRestoreViewModelBase.moneroSeedMnemonicLength) {

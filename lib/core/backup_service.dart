@@ -245,6 +245,7 @@ class $BackupService {
       for (var key in (keychainJSON['_all'] as Map<String, dynamic>).keys) {
         try {
           if (!key.startsWith('MONERO_WALLET_')) continue;
+          if (!key.startsWith('BELDEX_WALLET_')) continue;
           final decodedPassword = decodeWalletPassword(
               password: keychainJSON['_all'][key].toString());
           final walletName = key.split('_WALLET_')[1];

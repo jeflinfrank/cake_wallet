@@ -249,7 +249,7 @@ Future<bool> setupNodeSync({
   if (true) {
     currentWallet!.init3(
       argv0: '',
-      defaultLogBaseName: 'moneroc',
+      defaultLogBaseName: 'beldexc',
       console: true,
       logPath: '',
     );

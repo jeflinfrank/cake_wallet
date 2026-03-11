@@ -310,6 +310,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
       itemName = item.title;
     } else if (item is MoneroSeedType) {
       itemName = item.title;
+    } else if (item is BeldexSeedType) {
+      itemName = item.title;
     } else {
       itemName = '';
     }

@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/beldex/beldex.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -128,6 +129,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
   String formatAmountToString(int fullBalance) {
     if (wallet.type == WalletType.monero)
       return monero!.formatterMoneroAmountToString(amount: fullBalance);
+    if (wallet.type == WalletType.beldex)
+      return beldex!.formatterBeldexAmountToString(amount: fullBalance);
     if (wallet.type == WalletType.wownero)
       return wownero!.formatterWowneroAmountToString(amount: fullBalance);
     if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type))
@@ -140,6 +143,9 @@ abstract class UnspentCoinsListViewModelBase with Store {
   Future<void> _updateUnspents() async {
     if (wallet.type == WalletType.monero) {
       await monero!.updateUnspents(wallet);
+    }
+    if (wallet.type == WalletType.beldex) {
+      await beldex!.updateUnspents(wallet);
     }
     if (wallet.type == WalletType.wownero) {
       await wownero!.updateUnspents(wallet);
@@ -157,6 +163,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.monero:
         return monero!.getUnspents(wallet);
+      case WalletType.beldex:
+        return beldex!.getUnspents(wallet);
       case WalletType.wownero:
         return wownero!.getUnspents(wallet);
       case WalletType.bitcoin:
@@ -175,6 +183,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.monero:
         return monero!.getUnspents(wallet);
+      case WalletType.beldex:
+        return beldex!.getUnspents(wallet);
       case WalletType.wownero:
         return wownero!.getUnspents(wallet);
       case WalletType.bitcoin:

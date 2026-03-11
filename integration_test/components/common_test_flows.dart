@@ -313,6 +313,15 @@ class CommonTestFlows {
           .enterBlockHeightForWalletRestore(secrets.moneroTestWalletBlockHeight);
     }
 
+    if (numberOfWords == 25 && (type == WalletType.beldex)) {
+      await _restoreFromSeedOrKeysPageRobot
+          .chooseSeedTypeForBeldexWallets(BeldexSeedType.legacy);
+
+      // Using a constant value of 2831400 for the blockheight as its the restore blockheight for our testing wallet
+      await _restoreFromSeedOrKeysPageRobot
+          .enterBlockHeightForWalletRestore(secrets.beldexTestWalletBlockHeight);
+    }
+
     if (Platform.isLinux) {
       // manual pin input
       await _restoreFromSeedOrKeysPageRobot
@@ -342,6 +351,8 @@ class CommonTestFlows {
     switch (walletType) {
       case WalletType.monero:
         return secrets.moneroTestWalletSeeds;
+      case WalletType.beldex:
+        return secrets.beldexTestWalletSeeds;
       case WalletType.bitcoin:
         return secrets.bitcoinTestWalletSeeds;
       case WalletType.ethereum:
@@ -382,6 +393,8 @@ class CommonTestFlows {
     switch (walletType) {
       case WalletType.monero:
         return secrets.moneroTestWalletReceiveAddress;
+      case WalletType.beldex:
+        return secrets.beldexTestWalletReceiveAddress;
       case WalletType.bitcoin:
         return secrets.bitcoinTestWalletReceiveAddress;
       case WalletType.ethereum:

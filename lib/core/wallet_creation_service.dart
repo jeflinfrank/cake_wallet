@@ -28,6 +28,7 @@ class WalletCreationService {
   WalletService? _service;
 
   static const _isNewMoneroWalletPasswordUpdated = true;
+  static const _isNewBeldexWalletPasswordUpdated = true;
 
   void changeWalletType({required WalletType type}) {
     this.type = type;
@@ -66,6 +67,10 @@ class WalletCreationService {
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
           PreferencesKey.moneroWalletUpdateV1Key(wallet.name), _isNewMoneroWalletPasswordUpdated);
+    }
+    if (wallet.type == WalletType.beldex) {
+      await sharedPreferences.setBool(
+          PreferencesKey.beldexWalletUpdateV1Key(wallet.name), _isNewBeldexWalletPasswordUpdated);
     }
 
     return wallet;
@@ -112,6 +117,10 @@ class WalletCreationService {
       await sharedPreferences.setBool(
           PreferencesKey.moneroWalletUpdateV1Key(wallet.name), _isNewMoneroWalletPasswordUpdated);
     }
+    if (wallet.type == WalletType.beldex) {
+      await sharedPreferences.setBool(
+          PreferencesKey.beldexWalletUpdateV1Key(wallet.name), _isNewBeldexWalletPasswordUpdated);
+    }
 
     return wallet;
   }
@@ -130,6 +139,10 @@ class WalletCreationService {
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
           PreferencesKey.moneroWalletUpdateV1Key(wallet.name), _isNewMoneroWalletPasswordUpdated);
+    }
+    if (wallet.type == WalletType.beldex) {
+      await sharedPreferences.setBool(
+          PreferencesKey.beldexWalletUpdateV1Key(wallet.name), _isNewBeldexWalletPasswordUpdated);
     }
 
     return wallet;

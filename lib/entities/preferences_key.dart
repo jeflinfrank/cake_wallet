@@ -73,6 +73,7 @@ class PreferencesKey {
   static const shouldShowDEuroDisclaimer = 'should_show_deuro_disclaimer';
   static const shouldShowRepWarning = 'should_show_rep_warning';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
+  static const beldexWalletPasswordUpdateV1Base = 'beldex_wallet_update_v1';
   static const syncModeKey = 'sync_mode';
   static const syncAllKey = 'sync_all';
   static const builtinTorKey = 'builtin_tor';
@@ -103,6 +104,9 @@ class PreferencesKey {
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
+
+  static String beldexWalletUpdateV1Key(String name) =>
+      '${PreferencesKey.beldexWalletPasswordUpdateV1Base}_${name}';
 
   static const exchangeProvidersSelection = 'exchange-providers-selection';
   static const trocadorProviderStatesKey = 'trocador_provider_states';

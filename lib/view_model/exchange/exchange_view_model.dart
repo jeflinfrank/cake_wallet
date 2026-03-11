@@ -200,7 +200,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       ].contains(wallet.type);
 
   bool get hideAddressAfterExchange =>
-      [WalletType.monero, WalletType.wownero].contains(wallet.type);
+      [WalletType.monero, WalletType.wownero, WalletType.beldex].contains(wallet.type);
 
   bool _useTorOnly;
   final Box<Trade> trades;
@@ -342,6 +342,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   bool get hasAllAmount =>
       [
         WalletType.monero,
+        WalletType.beldex,
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
@@ -350,6 +351,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       depositCurrency == wallet.currency;
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
+  bool get isBeldexWallet => wallet.type == WalletType.beldex;
 
   @observable
   ObservableList<CryptoCurrency> receiveCurrencies;
@@ -794,6 +796,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
       changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
     } else if (wallet.type == WalletType.monero) {
+      final amount = await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any);
+
+      changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
+    } else if (wallet.type == WalletType.beldex) {
       final amount = await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any);
 
       changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
