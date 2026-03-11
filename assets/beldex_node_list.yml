@@ -1,14 +1,18 @@
 -
   uri: publicnode1.rpcnode.stream:29095
   is_default: true
-  useSSL: false
+  trusted: true
+  useSSL: true
   isEnabledForAutoSwitching: true
 -
   uri: publicnode2.rpcnode.stream:29095
+  trusted: true
+  useSSL: true
   is_default: false
-  useSSL: false
   isEnabledForAutoSwitching: true
 -
   uri: publicnode3.rpcnode.stream:29095
   is_default: false
-  useSSL: false
+  trusted: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
