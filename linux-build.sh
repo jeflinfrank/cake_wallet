@@ -23,10 +23,22 @@ dart run tool/generate_new_secrets.dart
 
 
 flutter pub get
-rm -f /etc/apt/sources.list.d/nodesource.list
-rm -f /etc/apt/trusted.gpg.d/nodesource.gpg
+# Remove any nodesource repo definitions
+rm -f /etc/apt/sources.list.d/*nodesource* || true
+rm -f /etc/apt/sources.list.d/*node* || true
+
+# Remove from main sources list if present
+sed -i '/nodesource/d' /etc/apt/sources.list || true
+
+# Remove from deb822 format sources (Debian 12/13 uses this)
+grep -rl nodesource /etc/apt/ | xargs -r sed -i '/nodesource/d'
+
+# Remove keyring
+rm -f /usr/share/keyrings/nodesource.gpg || true
+rm -f /etc/apt/trusted.gpg.d/*node* || true
+
 apt-get update
-apt-get install -y ca-certificates git
+apt-get install -y ca-certificates git libidn2-0
 update-ca-certificates
 git config --global http.sslBackend openssl
 pushd scripts/android 
