@@ -263,7 +263,7 @@ class CWBeldex extends Beldex {
         language: language,
         seedType: seedType == 1
             ? BeldexSeedType.polyseed
-            : (seedType == 3 ? BeldexSeedType.bip39 : BeldexSeedType.legacy),
+            : (seedType == 2 ? BeldexSeedType.bip39 : BeldexSeedType.legacy),
         passphrase: passphrase,
         mnemonic: mnemonic,
       );
