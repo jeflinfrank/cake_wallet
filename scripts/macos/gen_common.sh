@@ -12,6 +12,19 @@ gen_podspec() {
 	universal_sed "s/#___VALID_ARCHS___#/${ARCH}/g" $DEFAULT_FILE_PATH
 }
 
+gen_beldex_podspec() {
+	ARCH=$1
+	CW_PLUGIN_DIR="`pwd`/../../cw_beldex/macos"
+	BASE_FILENAME="cw_beldex_base.podspec"
+	BASE_FILE_PATH="${CW_PLUGIN_DIR}/${BASE_FILENAME}"
+	DEFAULT_FILENAME="cw_beldex.podspec"
+	DEFAULT_FILE_PATH="${CW_PLUGIN_DIR}/${DEFAULT_FILENAME}"
+
+	rm -f $DEFAULT_FILE_PATH
+	cp $BASE_FILE_PATH $DEFAULT_FILE_PATH
+	universal_sed "s/#___VALID_ARCHS___#/${ARCH}/g" $DEFAULT_FILE_PATH
+}
+
 gen_project() {
 	ARCH=$1
 	CW_DIR="`pwd`/../../macos/Runner.xcodeproj"
@@ -22,8 +35,10 @@ gen_project() {
 	universal_sed "s/ARCHS =.*/ARCHS = \"${ARCH}\";/g" $DEFAULT_FILE_PATH
 }
 
+
 gen() {
 	ARCH=$1
 	gen_podspec "${ARCH}"
+	gen_beldex_podspec "${ARCH}"
 	gen_project "${ARCH}"
 }

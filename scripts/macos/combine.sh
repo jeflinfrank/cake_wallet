@@ -8,7 +8,7 @@ mkdir -p $EXTERNAL_MACOS_LIB_DIR
 EXTERNAL_DIR_MACOS_ARM=${EXTERNAL_DIR}/macos-arm/lib
 EXTERNAL_DIR_MACOS_X86_64=${EXTERNAL_DIR}/macos-x86_64/lib
 
-LIBS=(libboost.a libcrypto.a libssl.a libsodium.a libunbound.a libmonero.a)
+LIBS=(libboost.a libcrypto.a libssl.a libsodium.a libunbound.a libmonero.a libbeldex.a)
 
 for lib in ${LIBS[@]}; do
 	echo ${EXTERNAL_DIR_MACOS_ARM}/$lib
