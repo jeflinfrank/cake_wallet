@@ -7,7 +7,7 @@ The following are the system requirements to build Cake Wallet for your macOS de
 ```txt
 macOS 15.3.1
 Xcode 16.2
-Flutter 3.27.4
+Flutter 3.32.0
 ```
 
 ### 1. Installing dependencies
@@ -56,7 +56,7 @@ The output of this command should appear like this, indicating successful instal
 
 ```zsh
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 3.27.4, on macOS 15.x.x)
+[✓] Flutter (Channel stable, 3.32.0, on macOS 15.x.x)
 ...
 [✓] Xcode - develop for iOS and macOS (Xcode 16.2)
 ...
@@ -93,7 +93,14 @@ Build the necessary libraries and their dependencies:
 
 ```zsh
 ./build_monero_all.sh
+cd ../
+./prepare_torch.sh
+./prepare_reown.sh
+./build_bitbox_flutter.sh
 ./build_decred.sh
+cd ../
+cd android
+./build_mwebd.sh
 ```
 
 NOTE: This step will take quite a while, so be sure you grab a cup of coffee or a good book!
@@ -101,6 +108,7 @@ NOTE: This step will take quite a while, so be sure you grab a cup of coffee or 
 Then run the configuration script to setup app name, app icon, etc:
 
 ```zsh
+cd macos
 ./app_config.sh
 ```
 

@@ -28,6 +28,7 @@
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
 		83FF6BF911B29965D3589BE7 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD06F8F6E3797AC031038136 /* Pods_Runner.framework */; };
 		9F565D5929954F53009A75FB /* secRandom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F565D5729954F53009A75FB /* secRandom.swift */; };
+		BA1D3B5A2D9A100100A1B2C3 /* beldex_libwallet2_api_c.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BA1D3B592D9A100100A1B2C3 /* beldex_libwallet2_api_c.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		CE75FC4A2C147EBA00CCC46E /* wownero_libwallet2_api_c.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = CE75FC492C147EBA00CCC46E /* wownero_libwallet2_api_c.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		CED5DBE42BE59BBF0065028F /* monero_libwallet2_api_c.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = CED5DBE32BE59BBF0065028F /* monero_libwallet2_api_c.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -53,16 +54,17 @@
 			name = "Bundle Framework";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CED5DBE02BE59B230065028F /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				CE75FC4A2C147EBA00CCC46E /* wownero_libwallet2_api_c.dylib in CopyFiles */,
-				CED5DBE42BE59BBF0065028F /* monero_libwallet2_api_c.dylib in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
+			CED5DBE02BE59B230065028F /* CopyFiles */ = {
+				isa = PBXCopyFilesBuildPhase;
+				buildActionMask = 2147483647;
+				dstPath = "";
+				dstSubfolderSpec = 10;
+				files = (
+					BA1D3B5A2D9A100100A1B2C3 /* beldex_libwallet2_api_c.dylib in CopyFiles */,
+					CE75FC4A2C147EBA00CCC46E /* wownero_libwallet2_api_c.dylib in CopyFiles */,
+					CED5DBE42BE59BBF0065028F /* monero_libwallet2_api_c.dylib in CopyFiles */,
+				);
+				runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -89,6 +91,7 @@
 		981E08F6A19E64F1F4D21DB8 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		9F1E7BFB2BF2D27500C28C9A /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		9F565D5729954F53009A75FB /* secRandom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = secRandom.swift; path = CakeWallet/secRandom.swift; sourceTree = "<group>"; };
+		BA1D3B592D9A100100A1B2C3 /* beldex_libwallet2_api_c.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = beldex_libwallet2_api_c.dylib; sourceTree = "<group>"; };
 		BD06F8F6E3797AC031038136 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE75FC492C147EBA00CCC46E /* wownero_libwallet2_api_c.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = wownero_libwallet2_api_c.dylib; sourceTree = "<group>"; };
 		CED5DBE32BE59BBF0065028F /* monero_libwallet2_api_c.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = monero_libwallet2_api_c.dylib; sourceTree = "<group>"; };
@@ -117,13 +120,14 @@
 			path = Configs;
 			sourceTree = "<group>";
 		};
-		33CC10E42044A3C60003C045 = {
-			isa = PBXGroup;
-			children = (
-				CE75FC492C147EBA00CCC46E /* wownero_libwallet2_api_c.dylib */,
-				CED5DBE32BE59BBF0065028F /* monero_libwallet2_api_c.dylib */,
-				9F565D5729954F53009A75FB /* secRandom.swift */,
-				33FAB671232836740065AC1E /* Runner */,
+			33CC10E42044A3C60003C045 = {
+				isa = PBXGroup;
+				children = (
+					BA1D3B592D9A100100A1B2C3 /* beldex_libwallet2_api_c.dylib */,
+					CE75FC492C147EBA00CCC46E /* wownero_libwallet2_api_c.dylib */,
+					CED5DBE32BE59BBF0065028F /* monero_libwallet2_api_c.dylib */,
+					9F565D5729954F53009A75FB /* secRandom.swift */,
+					33FAB671232836740065AC1E /* Runner */,
 				33CEB47122A05771004F2AC0 /* Flutter */,
 				33CC10EE2044A3C60003C045 /* Products */,
 				D73912EC22F37F3D000D13A0 /* Frameworks */,
@@ -450,7 +454,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 10;
-				DEVELOPMENT_TEAM = 32J6BB6VUS;
+				DEVELOPMENT_TEAM = V49VR5DKAK;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Cake Wallet";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
@@ -460,6 +464,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12;
 				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = io.beldex.cakewallet.dev;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
@@ -585,7 +590,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 10;
-				DEVELOPMENT_TEAM = 32J6BB6VUS;
+				DEVELOPMENT_TEAM = V49VR5DKAK;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Cake Wallet";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
@@ -595,6 +600,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12;
 				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = io.beldex.cakewallet.dev;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -614,7 +620,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 10;
-				DEVELOPMENT_TEAM = 32J6BB6VUS;
+				DEVELOPMENT_TEAM = V49VR5DKAK;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Cake Wallet";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
@@ -624,6 +630,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12;
 				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = io.beldex.cakewallet.dev;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
