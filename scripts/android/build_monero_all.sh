@@ -18,7 +18,7 @@ do
             then
                 echo "file exist, not building monero_c for ${COIN}/$target.";
             else
-                ./build_single.sh ${COIN} $target -j$MAKE_JOB_COUNT
+                ./build_single.sh ${COIN} $target -j1
                 unxz -f ../monero_c/release/${COIN}/${target}_libwallet2_api_c.so.xz
             fi
         done
