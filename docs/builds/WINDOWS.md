@@ -77,16 +77,69 @@ Run the following in a WSL terminal window (set the Git username and email as de
 wsl
 git config --global user.email "builds@cakewallet.com"
 git config --global user.name "builds"
-./build_all.sh
+./scripts/windows/build_all.sh
 ```
 
-### 7. Configure and build Cake Wallet application
+### 7. Prepare additional dependencies
+
+Before building the Flutter application, prepare the additional required packages:
+
+```powershell
+exit
+wsl ./scripts/prepare_torch.sh
+wsl ./scripts/prepare_reown.sh
+wsl ./scripts/build_bitbox_flutter.sh
+wsl ./scripts/android/build_mwebd.sh
+```
+
+If `build_mwebd.sh` reports missing `ANDROID_NDK_VERSION`, set it in your WSL shell first (replace with an installed version):
+
+```bash
+export ANDROID_NDK_VERSION=28.2.13676358
+```
+
+### 8. Configure and build Cake Wallet application
 
 To configure the application, run the following:
 
 ```powershell
-exit
 .\cakewallet.bat
 ```
 
 After running the script above, you should get `Cake Wallet.zip` in the project's root directory which will contain `CakeWallet.exe` and other needed files for running the application. Now you can extract files from `Cake Wallet.zip` archive and run the application.
+
+### Troubleshooting
+
+If you encounter errors about missing generated files (like `_$ViewModel` classes or adapter methods), try cleaning and rebuilding:
+
+```powershell
+flutter clean
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+.\cakewallet.bat
+```
+
+If you see `cw_mweb/lib/generated_bindings.g.dart` missing, run:
+
+```powershell
+wsl
+cd /mnt/c/cake_wallet/scripts/android
+export ANDROID_NDK_VERSION=28.2.13676358
+./build_mwebd.sh
+exit
+.\cakewallet.bat
+```
+
+If the C++ compilation fails with missing headers like `atlbase.h`, ensure Visual Studio 2022 has the `Desktop Development with C++` workload installed with ATL support.
+
+Steps:
+1. Click Modify on your VS installation
+2. Go to Individual components
+
+3. Search and install:
+ - C++ ATL for latest v143 build tools (x86 & x64)
+ - C++ MFC for latest v143 build tools (x86 & x64)
+
+4. Also ensure this is installed:
+  Desktop development with C++ (workload)
+5. Click Modify / Install
